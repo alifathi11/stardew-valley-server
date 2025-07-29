@@ -8,5 +8,9 @@ public enum Type {
     NEW_GAME,
     LEADERBOARD,
     REACTION,
+    CREATE_LOBBY,
+    SEND_INVITATION,
+    INVITATION,
+    TICK,
     ;
 }

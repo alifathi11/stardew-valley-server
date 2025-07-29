@@ -12,13 +12,27 @@ import java.util.Optional;
 
 public class TokenRepository {
 
+    private static TokenRepository instance;
+
     private final DataSource dataSource;
     private final SecureRandom secureRandom = new SecureRandom();
     private final long EXPIRY_SECONDS = 3600;
 
-    public TokenRepository(DataSource dataSource) {
+    private TokenRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+
+    public static void init(DataSource dataSource) {
+        if (instance != null) return;
+
+        instance = new TokenRepository(dataSource);
+    }
+
+    public static TokenRepository getInstance() {
+        return instance;
+    }
+
 
     public String generateToken(String userId) {
         byte[] bytes = new byte[32];

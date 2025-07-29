@@ -2,7 +2,6 @@ package org.example.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.example.model.AuthToken;
 import org.example.model.User;
 import org.hibernate.annotations.processing.SQL;
 import org.springframework.stereotype.Repository;
@@ -18,10 +17,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class UserRepository {
+
+    private static UserRepository instance;
+
     private final DataSource dataSource;
 
-    public UserRepository(DataSource dataSource) {
+    private UserRepository(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public static void init(DataSource dataSource) {
+        if (instance != null) return;
+
+        instance = new UserRepository(dataSource);
+    }
+
+    public static UserRepository getInstance() {
+        return instance;
     }
 
     public boolean usernameExists(String username) {

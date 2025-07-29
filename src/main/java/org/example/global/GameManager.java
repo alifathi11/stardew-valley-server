@@ -1,11 +1,10 @@
-package org.example.controller;
+package org.example.global;
 
 import org.example.model.Game;
 
-import java.util.List;
 import java.util.Map;
 
-public class GameController {
+public class GameManager {
     private static Map<String, Game> games;
 
     public static void addGame(Game game) {

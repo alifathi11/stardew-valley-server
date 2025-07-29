@@ -11,14 +11,15 @@ import java.util.UUID;
 
 public class AuthenticationController {
 
-    private UserRepository userRepository;
-    private TokenRepository tokenManager;
+    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
 
-    public AuthenticationController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public AuthenticationController() {
+        this.userRepository = UserRepository.getInstance();
+        this.tokenRepository = TokenRepository.getInstance();
     }
 
-    public Message handleSignup(Message message) {
+    public Message signup(Message message) {
         if (message.getType() != Type.SIGNUP) return Message.invalidArgument();
 
         // extract data
@@ -59,7 +60,7 @@ public class AuthenticationController {
 
     }
 
-    public Message handleLogin(Message message) {
+    public Message login(Message message) {
         if (message.getType() != Type.LOGIN) return Message.invalidArgument();
 
         String username = (String) message.getFromPayload("username");
@@ -76,7 +77,7 @@ public class AuthenticationController {
         if (!Hasher.validate(password, user.getPasswordHash()))
             return Message.error("Invalid password.");
 
-        String token = tokenManager.generateToken(username);
+        String token = tokenRepository.generateToken(username);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");

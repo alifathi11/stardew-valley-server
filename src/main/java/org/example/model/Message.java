@@ -1,11 +1,13 @@
 package org.example.model;
 
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Message {
     private Type type;
     private Map<String, Object> payload;
+    private SocketChannel source;
 
     public Message() {}
 
@@ -47,7 +49,18 @@ public class Message {
         return new Message(Type.SUCCESS, payload);
     }
 
+    public static Message success() {
+        return new Message(Type.SUCCESS, Map.of());
+    }
     public static Message error(String error) {
-        return new Message(Type.ERROR, error);
+        return new Message(Type.ERROR, Map.of("error", error));
+    }
+
+    public void setSource(SocketChannel source) {
+        this.source = source;
+    }
+
+    public SocketChannel getSource() {
+        return source;
     }
 }
