@@ -42,18 +42,12 @@ public class Message {
         return new Message(Type.ERROR, payload);
     }
 
-    public static Message successWithToken(String token) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("status", "success");
-        payload.put("token", token);
-        return new Message(Type.SUCCESS, payload);
-    }
 
-    public static Message success() {
-        return new Message(Type.SUCCESS, Map.of());
+    public static Message success(Type type, String message) {
+        return new Message(type, Map.of("status", "success", "content", message));
     }
-    public static Message error(String error) {
-        return new Message(Type.ERROR, Map.of("error", error));
+    public static Message error(Type type, String error) {
+        return new Message(type, Map.of("status", "error", "error", error));
     }
 
     public void setSource(SocketChannel source) {

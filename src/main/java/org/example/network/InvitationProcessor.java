@@ -35,6 +35,7 @@ public class InvitationProcessor {
                     payload.put("from_user", invitation.getFromUser());
                     payload.put("lobby_id", invitation.getLobbyId());
                     payload.put("members", lobby.getMembers());
+                    payload.put("invitation_token", invitation.getToken());
 
                     Message invitaionMessage = new Message(Type.INVITATION, payload);
 

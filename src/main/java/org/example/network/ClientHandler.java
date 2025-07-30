@@ -1,6 +1,7 @@
 package org.example.network;
 
 import org.example.model.Message;
+import org.example.model.Type;
 import org.example.utils.MessageParser;
 
 import java.io.*;
@@ -11,6 +12,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,7 +67,20 @@ public class ClientHandler {
         Queue<Message> queue = client.getOutgoingMessages();
         try {
             while (!queue.isEmpty()) {
+                // Poll message
                 Message msg = queue.poll();
+
+                // Store user if login successes
+                Type msgType = msg.getType();
+                if (msgType == Type.LOGIN) {
+                    boolean success = Objects.equals(msg.getFromPayload("status"), "success");
+                    if (success) {
+                        String username = (String) msg.getFromPayload("username");
+                        onUserAuthenticated(username, channel);
+                    }
+                }
+
+                // Send message to user
                 String json = MessageParser.toJson(msg) + "\n";
                 ByteBuffer buffer = ByteBuffer.wrap(json.getBytes(StandardCharsets.UTF_8));
                 channel.write(buffer);
@@ -78,7 +93,10 @@ public class ClientHandler {
     public void closeConnection(SocketChannel channel) {
         try {
             System.out.println("Closing connection: " + channel.getRemoteAddress());
-            channelToConnection.remove(channel);
+            ClientConnection conn = channelToConnection.remove(channel);
+            if (conn != null && conn.getUsername() != null) {
+                usernameToConnection.remove(conn.getUsername());
+            }
             channel.close();
         } catch (IOException ignored) {}
     }
@@ -101,5 +119,9 @@ public class ClientHandler {
             conn.setUsername(username);
             usernameToConnection.put(username, conn);
         }
+    }
+
+    public boolean isUserOnline(String username) {
+        return usernameToConnection.containsKey(username);
     }
 }

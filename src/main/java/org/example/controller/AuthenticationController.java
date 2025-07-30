@@ -67,21 +67,22 @@ public class AuthenticationController {
         String password = (String) message.getFromPayload("password");
 
         if (username == null || password == null)
-            return Message.error("Username and password are required.");
+            return Message.error(Type.LOGIN, "Username and password are required.");
 
         User user;
         if (userRepository.findByUsername(username).isPresent())
             user = userRepository.findByUsername(username).get();
-        else return Message.error("User not found.");
+        else return Message.error(Type.LOGIN, "User not found.");
 
         if (!Hasher.validate(password, user.getPasswordHash()))
-            return Message.error("Invalid password.");
+            return Message.error(Type.LOGIN, "Invalid password.");
 
         String token = tokenRepository.generateToken(username);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");
         payload.put("message", "Logged in successfully.");
+        payload.put("username", username);
         payload.put("token", token);
 
         return new Message(Type.SUCCESS, payload);

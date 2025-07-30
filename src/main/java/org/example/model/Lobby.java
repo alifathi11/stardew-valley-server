@@ -1,23 +1,52 @@
 package org.example.model;
 
-import jakarta.persistence.Lob;
+import org.example.network.GameSession;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Lobby {
     private final String id;
     private String hostUsername;
     private final Set<String> members;
+    private final Map<String, Integer> userToMapNumber;
+    private final Map<String, String> playerNames;
+    private final Map<String, Gender> playerGenders;
     private LobbyState state;
     private boolean isPrivate;
     private boolean isVisible;
-    private String password;
+    private String passwordHash;
+    private GameSession session;
+    private Game game;
+
+
+    public Lobby(String id,
+                 String hostUsername,
+                 boolean isPrivate,
+                 boolean isVisible,
+                 String passwordHash) {
+
+        this.id = id;
+        this.hostUsername = hostUsername;
+        this.isVisible = isVisible;
+        this.isPrivate = isPrivate;
+        this.passwordHash = passwordHash;
+
+        this.members = ConcurrentHashMap.newKeySet();
+        this.userToMapNumber = new ConcurrentHashMap<>();
+        this.playerNames = new ConcurrentHashMap<>();
+        this.playerGenders = new ConcurrentHashMap<>();
+        this.state = LobbyState.WAITING;
+
+    }
 
 
     public Lobby(String id,
                  String hostUsername,
                  Set<String> members,
+                 Map<String, Integer> userToMapNumber,
+                 Map<String, String> playerNames,
+                 Map<String, Gender> playerGenders,
                  LobbyState state,
                  boolean isPrivate,
                  boolean isVisible,
@@ -26,12 +55,19 @@ public class Lobby {
         this.id = id;
         this.hostUsername = hostUsername;
         this.members = members;
+        this.userToMapNumber = userToMapNumber;
+        this.playerNames = playerNames;
+        this.playerGenders = playerGenders;
         this.state = state;
         this.isPrivate = isPrivate;
         this.isVisible = isVisible;
-        this.password = password;
+        this.passwordHash = password;
 
         this.members.add(hostUsername);
+    }
+
+    public void setSession(GameSession session) {
+        this.session = session;
     }
 
     public String getId() {
@@ -66,20 +102,20 @@ public class Lobby {
         this.hostUsername = hostUsername;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public boolean isPrivate() {
         return isPrivate;
     }
 
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
+    public void setPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 
     public boolean isVisible() {
@@ -88,5 +124,21 @@ public class Lobby {
 
     public void setVisible(boolean isVisible) {
         this.isVisible = isVisible;
+    }
+
+    public Map<String, Integer> getUserToMapNumber() {
+        return userToMapNumber;
+    }
+
+    public GameSession getSession() {
+        return session;
+    }
+
+    public Map<String, Gender> getPlayerGenders() {
+        return playerGenders;
+    }
+
+    public Map<String, String> getPlayerNames() {
+        return playerNames;
     }
 }

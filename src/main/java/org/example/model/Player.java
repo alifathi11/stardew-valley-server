@@ -1,22 +1,37 @@
 package org.example.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    private User user;
+    private String username;
     private String name;
+    private Gender gender;
     private Wallet wallet;
     private List<Quest> quests;
     private List<PlayerAbilities> playerAbilities;
 
-    public Player(User user,
+    public Player(String username,
                   String name,
+                  Gender gender) {
+        this.username = username;
+        this.name = name;
+        this.gender = gender;
+        this.wallet = new Wallet(0);
+        this.quests = new ArrayList<>();
+        this.playerAbilities = new ArrayList<>();
+    }
+
+    public Player(String username,
+                  String name,
+                  Gender gender,
                   Wallet wallet,
                   List<Quest> quests,
                   List<PlayerAbilities> playerAbilities) {
 
-        this.user = user;
+        this.username = username;
         this.name = name;
+        this.gender = gender;
         this.wallet = wallet;
         this.quests = quests;
         this.playerAbilities = playerAbilities;
@@ -47,12 +62,12 @@ public class Player {
         this.playerAbilities = playerAbilities;
     }
 
-    public User getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getName() {
@@ -61,5 +76,13 @@ public class Player {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 }

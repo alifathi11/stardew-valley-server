@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClientConnection {
 
+    private GameSession gameSession;
     private final SocketChannel channel;
     private final Queue<Message> outgoingMessages = new ConcurrentLinkedQueue<>();
     private final UUID id = UUID.randomUUID();
@@ -45,5 +46,9 @@ public class ClientConnection {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setGameSession(GameSession gameSession) {
+        this.gameSession = gameSession;
     }
 }

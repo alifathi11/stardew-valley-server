@@ -7,16 +7,19 @@ public class LobbyInvitation {
     private final String fromUser;
     private final String toUser;
     private final String lobbyId;
+    private final String token;
 
     // global pending invitation set
     static final Set<LobbyInvitation> pending = ConcurrentHashMap.newKeySet();
 
     public LobbyInvitation(String fromUser,
                            String toUser,
-                           String lobbyId) {
+                           String lobbyId,
+                           String token) {
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.lobbyId = lobbyId;
+        this.token = token;
     }
 
     public String getFromUser() {
@@ -33,5 +36,9 @@ public class LobbyInvitation {
 
     public static void addInvitation(LobbyInvitation invitation) {
         pending.add(invitation);
+    }
+
+    public String getToken() {
+        return token;
     }
 }

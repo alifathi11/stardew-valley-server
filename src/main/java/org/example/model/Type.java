@@ -11,6 +11,12 @@ public enum Type {
     CREATE_LOBBY,
     SEND_INVITATION,
     INVITATION,
+    ACCEPT_INVITATION,
     TICK,
+    CREATE_GAME,
+    START_GAME,
+    JOIN_LOBBY,
+    CHOOSE_MAP,
+    CHOOSE_NAME_GENDER,
     ;
 }

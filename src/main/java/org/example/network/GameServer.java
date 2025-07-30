@@ -29,7 +29,8 @@ public class GameServer {
     private final BlockingQueue<Message> globalRequestQueue = new LinkedBlockingQueue<>();
     private final BlockingQueue<LobbyInvitation> globalInvitationQueue = new LinkedBlockingQueue<>();
 
-    private ClientHandler clientHandler;
+    private static ClientHandler clientHandler;
+
     private RequestProcessor requestProcessor;
     private InvitationProcessor invitationProcessor;
 
@@ -108,5 +109,9 @@ public class GameServer {
             serverChannel.close();
         } catch (IOException ignored) {
         }
+    }
+
+    public static ClientHandler getClientHandler() {
+        return clientHandler;
     }
 }
