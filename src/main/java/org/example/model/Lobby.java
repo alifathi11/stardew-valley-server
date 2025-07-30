@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Lobby {
     private final String id;
+    private String name;
     private String hostUsername;
     private final Set<String> members;
     private final Map<String, Integer> userToMapNumber;
@@ -21,12 +22,14 @@ public class Lobby {
 
 
     public Lobby(String id,
+                 String name,
                  String hostUsername,
                  boolean isPrivate,
                  boolean isVisible,
                  String passwordHash) {
 
         this.id = id;
+        this.name = name;
         this.hostUsername = hostUsername;
         this.isVisible = isVisible;
         this.isPrivate = isPrivate;
@@ -140,5 +143,13 @@ public class Lobby {
 
     public Map<String, String> getPlayerNames() {
         return playerNames;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

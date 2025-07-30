@@ -4,10 +4,8 @@ import org.example.model.*;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.sql.Array;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,12 +13,14 @@ public class LobbyManager {
     private static final Map<String, Lobby> lobbies = new ConcurrentHashMap<>();
     private static final Map<String, String> userToLobbyId = new ConcurrentHashMap<>();
 
-    public static Lobby createLobby(String hostUsername,
+    public static Lobby createLobby(String lobbyName,
+                                    String hostUsername,
                                     boolean isPrivate,
                                     boolean isVisible,
                                     String password) {
 
         Lobby lobby = new Lobby(UUID.randomUUID().toString(),
+                                lobbyName,
                                 hostUsername,
                                 isPrivate,
                                 isVisible,
@@ -31,7 +31,7 @@ public class LobbyManager {
         return lobby;
     }
 
-    public static boolean joinLobby(String username, String lobbyId) {
+    public static boolean joinLobby(String username, String passwordHash, String lobbyId) {
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby == null || lobby.getState() != LobbyState.WAITING) {
             return false;
@@ -41,14 +41,16 @@ public class LobbyManager {
             return false;
         }
 
+        if (lobby.isPrivate() && !passwordHash.equals(lobby.getPasswordHash())) {
+            return false;
+        }
+
         lobby.addMember(username);
         userToLobbyId.put(username, lobbyId);
         return true;
     }
 
-    public static boolean leaveLobby(String username) {
-        String lobbyId = userToLobbyId.get(username);
-        if (lobbyId == null) return false;
+    public static boolean leaveLobby(String username, String lobbyId) {
 
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby == null) return false;
@@ -57,6 +59,14 @@ public class LobbyManager {
         userToLobbyId.remove(username);
         if (lobby.getMembers().isEmpty()) {
             lobbies.remove(lobbyId);
+        }
+
+        // Change the host of the lobby if user was host
+        if (!lobby.getMembers().isEmpty() &&
+             lobby.getHostUsername().equalsIgnoreCase(username)) {
+
+            String newHost = new ArrayList<>(lobby.getMembers()).get(0);
+            lobby.setHostUsername(newHost);
         }
 
         return true;

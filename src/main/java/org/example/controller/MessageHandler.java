@@ -27,7 +27,12 @@ public class MessageHandler {
                 return gameController.chooseMap(request);
             case CHOOSE_NAME_GENDER:
                 return lobbyController.chooseNameGender(request);
-
+            case REQUEST_JOIN:
+                return lobbyController.requestJoin(request);
+            case ACCEPT_JOIN:
+                return lobbyController.acceptJoin(request);
+            case REQUEST_LEAVE_LOBBY:
+                return lobbyController.leaveLobby(request);
 
             default:
                 return Message.error(Type.ERROR, "Invalid argument");
