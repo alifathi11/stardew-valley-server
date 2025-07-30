@@ -25,21 +25,29 @@ public class LobbyController {
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");
         payload.put("lobby_id", lobby.getId());
-        payload.put("members", lobby.getMembers());
-        Message response = new Message(Type.CREATE_LOBBY, payload);
-        return response;
+        payload.put("members", new ArrayList<>(lobby.getMembers()));
+
+        return new Message(Type.CREATE_LOBBY, payload);
     }
 
     public Message sendInvitation(Message message) {
-        String hostUsername = (String) message.getFromPayload("host_username");
-        String targetUsername = (String) message.getFromPayload("target_username");
+        String fromUser = (String) message.getFromPayload("from_user");
+        String toUser = (String) message.getFromPayload("to_user");
         String lobbyId = (String) message.getFromPayload("lobby_id");
 
-        String invitationToken = "";
-        // TODO
+        Lobby lobby = LobbyManager.getLobby(lobbyId);
 
-        LobbyInvitation invitation = new LobbyInvitation(hostUsername, targetUsername, lobbyId, invitationToken);
-        LobbyInvitation.addInvitation(invitation);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("from_user", fromUser);
+        payload.put("lobby_id", lobbyId);
+        payload.put("members", new ArrayList<>(lobby.getMembers()));
+        payload.put("invitation_token", "");
+
+        Message invitaionMessage = new Message(Type.INVITATION, payload);
+
+        ClientConnection client = GameServer.getClientHandler().getClientByUsername(toUser);
+        client.send(invitaionMessage);
 
         return Message.success(Type.SEND_INVITATION, "invitation sent successfully.");
     }

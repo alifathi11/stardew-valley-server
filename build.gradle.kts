@@ -15,6 +15,8 @@ repositories {
     mavenCentral()
 }
 
+val jacksonVersion = "2.17.1"
+
 dependencies {
     // Spring Boot Starters
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -45,7 +47,20 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
     implementation("com.badlogicgames.gdx:gdx:1.12.1")
 
+
+    implementation("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+
     implementation("org.xerial:sqlite-jdbc:3.45.1.0")
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "com.fasterxml.jackson.core") {
+            useVersion(jacksonVersion)
+        }
+    }
 }
 
 tasks.test {

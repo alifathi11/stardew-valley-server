@@ -10,6 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
 
@@ -32,7 +33,6 @@ public class GameServer {
     private static ClientHandler clientHandler;
 
     private RequestProcessor requestProcessor;
-    private InvitationProcessor invitationProcessor;
 
 
     public void start() throws IOException {
@@ -43,14 +43,10 @@ public class GameServer {
         serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 
         clientHandler = new ClientHandler(selector, globalRequestQueue);
-        requestProcessor = new RequestProcessor(clientHandler, globalRequestQueue);
-        invitationProcessor = new InvitationProcessor(clientHandler, globalInvitationQueue);
+        requestProcessor = new RequestProcessor(clientHandler, globalRequestQueue);;
 
-        // Start request processor thread
+//         Start request processor thread
         requestProcessor.start();
-
-        // Start invitation processor thread
-        invitationProcessor.start();
 
         scheduler.scheduleAtFixedRate(this::gameTick, 0, TICK_RATE_MS, TimeUnit.MILLISECONDS);
 
@@ -96,7 +92,8 @@ public class GameServer {
 
     public void gameTick() {
         clientHandler.getChannelToConnection().forEach((channel, client) -> {
-            Message gameUpdate = new Message(Type.TICK, String.valueOf(System.currentTimeMillis()));
+
+            Message gameUpdate = new Message(Type.TICK, Map.of("time", System.currentTimeMillis()));
             client.send(gameUpdate);
         });
     }

@@ -1,5 +1,7 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +9,8 @@ import java.util.Map;
 public class Message {
     private Type type;
     private Map<String, Object> payload;
+
+    @JsonIgnore
     private SocketChannel source;
 
     public Message() {}
@@ -50,11 +54,23 @@ public class Message {
         return new Message(type, Map.of("status", "error", "error", error));
     }
 
-    public void setSource(SocketChannel source) {
-        this.source = source;
+
+    @Override
+    public String toString() {
+        StringBuilder output = new StringBuilder();
+        output.append("type: ").append(type.name());
+        for (var entry : payload.entrySet()) {
+            output.append(entry.getKey()).append(" : ").append(entry.getValue());
+        }
+
+        return output.toString();
     }
 
     public SocketChannel getSource() {
         return source;
+    }
+
+    public void setSource(SocketChannel source) {
+        this.source = source;
     }
 }

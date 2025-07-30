@@ -11,6 +11,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
@@ -34,6 +35,12 @@ public class ClientHandler {
         clientChannel.register(selector, SelectionKey.OP_READ);
         channelToConnection.put(clientChannel, new ClientConnection(clientChannel));
         System.out.println("Accepted connection from " + clientChannel.getRemoteAddress());
+
+        Message message = new Message(Type.SUCCESS, Map.of("test string", "success", "test list", Arrays.asList(1, 2, 3, 4),
+                "test list 2", Arrays.asList("ali1", "ali2", "ali3"), "test integer", 5));
+
+        channelToConnection.get(clientChannel).send(message);
+
     }
 
     public void readFromClient(SelectionKey key) {
@@ -81,12 +88,27 @@ public class ClientHandler {
                 }
 
                 // Send message to user
-                String json = MessageParser.toJson(msg) + "\n";
-                ByteBuffer buffer = ByteBuffer.wrap(json.getBytes(StandardCharsets.UTF_8));
-                channel.write(buffer);
+                send(channel, msg);
             }
         } catch (Exception e) {
             closeConnection(channel);
+        }
+    }
+
+    public void send(SocketChannel channel, Message msg) {
+        try {
+            String json = MessageParser.toJson(msg);
+            byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
+            int length = jsonBytes.length;
+
+            ByteBuffer buffer = ByteBuffer.allocate(4 + length);
+            buffer.putInt(length);
+            buffer.put(jsonBytes);
+            buffer.flip();
+
+            channel.write(buffer);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
