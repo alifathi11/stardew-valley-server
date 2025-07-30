@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.example.data.DatabaseInitializer;
 import org.example.network.GameServer;
 import org.example.network.ServerConfig;
+import org.example.repository.LobbyInviteTokenRepository;
 import org.example.repository.TokenRepository;
 import org.example.repository.UserRepository;
 import org.example.utils.ConfigLoader;
@@ -25,6 +26,7 @@ public class Main {
         // Initialize repositories
         UserRepository.init(ds);
         TokenRepository.init(ds);
+        LobbyInviteTokenRepository.init(ds);
 
         // Load server config
         // TODO: use config

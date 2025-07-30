@@ -31,17 +31,13 @@ public class LobbyManager {
         return lobby;
     }
 
-    public static boolean joinLobby(String username, String passwordHash, String lobbyId) {
+    public static boolean joinLobby(String username, String lobbyId) {
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby == null || lobby.getState() != LobbyState.WAITING) {
             return false;
         }
 
         if (lobby.getMembers().size() >= 4) {
-            return false;
-        }
-
-        if (lobby.isPrivate() && !passwordHash.equals(lobby.getPasswordHash())) {
             return false;
         }
 
@@ -121,6 +117,7 @@ public class LobbyManager {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("lobby_id", lobby);
+        // TODO: add initial player positions
 
         for (String member : lobby.getMembers()) {
             Message message = new Message(Type.START_GAME, payload);

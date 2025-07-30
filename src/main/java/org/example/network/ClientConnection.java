@@ -51,4 +51,8 @@ public class ClientConnection {
     public void setGameSession(GameSession gameSession) {
         this.gameSession = gameSession;
     }
+
+    public GameSession getGameSession() {
+        return gameSession;
+    }
 }

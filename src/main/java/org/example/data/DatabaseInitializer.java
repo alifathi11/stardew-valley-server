@@ -46,6 +46,15 @@ public class DatabaseInitializer {
                 );
             """);
 
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS lobby_invite_tokens (
+                    token TEXT PRIMARY KEY,
+                    expires_at TEXT NOT NULL,
+                    invited_user_id TEXT NOT NULL,
+                    lobby_id TEXT NOT NULL
+                );
+            """);
+
             System.out.println("✅ SQLite tables initialized.");
         }
     }

@@ -5,6 +5,7 @@ import org.example.global.LobbyManager;
 import org.example.model.*;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
+import org.example.repository.LobbyInviteTokenRepository;
 import org.example.repository.UserRepository;
 
 import java.awt.*;
@@ -42,12 +43,13 @@ public class LobbyController {
 
         Lobby lobby = LobbyManager.getLobby(lobbyId);
 
+        String token = LobbyInviteTokenRepository.getInstance().generateToken(toUser, lobbyId);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("from_user", fromUser);
         payload.put("lobby_id", lobbyId);
         payload.put("members", new ArrayList<>(lobby.getMembers()));
-        payload.put("invitation_token", "");
+        payload.put("invitation_token", token);
 
         Message invitaionMessage = new Message(Type.INVITATION, payload);
 
@@ -60,15 +62,24 @@ public class LobbyController {
     public Message acceptInvitation(Message message) {
         String username = (String) message.getFromPayload("username");
         String lobbyId = (String) message.getFromPayload("lobby_id");
-        String invitationToken = (String) message.getFromPayload("invitation_token");
-        String passwordHash = "";
+        String token = (String) message.getFromPayload("invitation_token");
+
+
+        Optional<String> lobbyIdOpt = LobbyInviteTokenRepository.getInstance().consumeToken(token, username);
+        String tokenLobbyId;
+        if (lobbyIdOpt.isPresent()) {
+            tokenLobbyId = lobbyIdOpt.get();
+        } else {
+            return Message.error(Type.ACCEPT_INVITATION, "Invalid token.");
+        }
+
+        if (!tokenLobbyId.equals(lobbyId)) {
+            return Message.error(Type.ACCEPT_INVITATION, "Invalid token.");
+        }
 
         Lobby lobby = LobbyManager.getLobby(lobbyId);
-        if (lobby.isPrivate())
-            passwordHash = (String) message.getFromPayload("password");
 
-        // TODO: check token validation
-        boolean success = LobbyManager.joinLobby(username, passwordHash, lobbyId);
+        boolean success = LobbyManager.joinLobby(username, lobbyId);
         if (success) {
 
             Map<String, Object> joinMessagePayload = new HashMap<>();
@@ -139,62 +150,30 @@ public class LobbyController {
     public Message requestJoin(Message message) {
         String username = (String) message.getFromPayload("username");
         String lobbyId = (String) message.getFromPayload("lobby_id");
+        String passwordHash = (String) message.getFromPayload("password");
 
         Lobby lobby = LobbyManager.getLobby(lobbyId);
         if (lobby == null) {
             return Message.error(Type.REQUEST_JOIN, "Lobby doesn't exist.");
         }
 
-        String hostUsername = lobby.getHostUsername();
-
-        Map<String, Object> joinRequestPayload = new HashMap<>();
-        joinRequestPayload.put("username", username);
-
-        Message joinRequest = new Message(Type.JOIN_REQUEST, joinRequestPayload);
-        ClientConnection connection = GameServer.getClientHandler().getClientByUsername(hostUsername);
-        if (connection == null) {
-            return Message.error(Type.REQUEST_JOIN, "Lobby doesn't have host currently!");
+        if (!passwordHash.equals(lobby.getPasswordHash())) {
+            return Message.error(Type.REQUEST_JOIN, "Password in wrong.");
         }
 
-        connection.send(joinRequest);
-
-        return Message.success(Type.REQUEST_JOIN, "Request has been sent successfully.");
-    }
-
-    public Message acceptJoin(Message message) {
-        String username = (String) message.getFromPayload("username");
-        String targetUser = (String) message.getFromPayload("target_user");
-        String lobbyId = (String) message.getFromPayload("lobby_id");
-
-
-        Lobby lobby = LobbyManager.getLobby(lobbyId);
-        if (lobby == null) {
-            return Message.error(Type.ACCEPT_JOIN, "Lobby has a problem.");
-        }
-
-        if (!username.equalsIgnoreCase(lobby.getHostUsername())) {
-            return Message.error(Type.ACCEPT_JOIN, "You cannot accept a join request.");
-        }
-
-        String passwordHash = "";
-        if (lobby.isPrivate()) {
-            passwordHash = (String) message.getFromPayload("password");
-        }
-
-
-        boolean success = LobbyManager.joinLobby(targetUser, passwordHash, lobbyId);
+        boolean success = LobbyManager.joinLobby(username, lobbyId);
         if (success) {
 
             Map<String, Object> joinMessagePayload = new HashMap<>();
             joinMessagePayload.put("lobby_id", lobbyId);
-            joinMessagePayload.put("username", targetUser);
+            joinMessagePayload.put("username", username);
 
 
-            if (UserRepository.getInstance().findByUsername(targetUser).isEmpty()) {
-                return Message.error(Type.ACCEPT_JOIN, "Unknown error.");
+            if (UserRepository.getInstance().findByUsername(username).isEmpty()) {
+                return Message.error(Type.REQUEST_JOIN, "Unknown error.");
             }
 
-            User user = UserRepository.getInstance().findByUsername(targetUser).get();
+            User user = UserRepository.getInstance().findByUsername(username).get();
 
             joinMessagePayload.put("name", user.getName());
             joinMessagePayload.put("gender", user.getGender());
@@ -203,33 +182,31 @@ public class LobbyController {
             Message joinMessage = new Message(Type.JOIN_LOBBY, joinMessagePayload);
 
             for (String member : lobby.getMembers()) {
-                if (member.equalsIgnoreCase(targetUser)) continue;
+                if (member.equalsIgnoreCase(username)) continue;
                 ClientConnection client = GameServer.getClientHandler().getClientByUsername(member);
                 if (client == null) continue;
                 client.send(joinMessage);
             }
 
-            // Report to the target user
-            ClientConnection targetUserClient = GameServer.getClientHandler().getClientByUsername(targetUser);
-            targetUserClient.send(new Message(Type.JOIN_ACCEPTED, Map.of("lobby_id", lobbyId)));
-
             // Return Response
             Map<String, Object> payload = new HashMap<>();
             payload.put("status", "success");
-            payload.put("message", targetUser + " has successfully joined the lobby.");
+            payload.put("message", "You have successfully joined the lobby.");
             payload.put("lobby_id", lobbyId);
-            return new Message(Type.ACCEPT_JOIN, payload);
+            return new Message(Type.REQUEST_JOIN, payload);
 
         } else {
             Map<String, Object> payload = new HashMap<>();
             payload.put("status", "error");
-            payload.put("error", targetUser + "failed to join lobby.");
+            payload.put("error", "Failed to join the lobby.");
             payload.put("lobby_id", lobbyId);
 
-            return new Message(Type.ACCEPT_JOIN, payload);
+            return new Message(Type.REQUEST_JOIN, payload);
         }
 
+
     }
+
 
     public Message leaveLobby(Message message) {
         String username = (String) message.getFromPayload("username");

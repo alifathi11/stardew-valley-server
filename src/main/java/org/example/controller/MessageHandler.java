@@ -29,10 +29,10 @@ public class MessageHandler {
                 return lobbyController.chooseNameGender(request);
             case REQUEST_JOIN:
                 return lobbyController.requestJoin(request);
-            case ACCEPT_JOIN:
-                return lobbyController.acceptJoin(request);
             case REQUEST_LEAVE_LOBBY:
                 return lobbyController.leaveLobby(request);
+            case PLAYER_MOVE:
+                return gameController.playerMove(request);
 
             default:
                 return Message.error(Type.ERROR, "Invalid argument");

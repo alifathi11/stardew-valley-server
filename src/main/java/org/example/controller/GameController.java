@@ -77,4 +77,17 @@ public class GameController {
         return new Message(Type.CHOOSE_MAP, payload);
     }
 
+    public Message playerMove(Message message) {
+        String username = (String) message.getFromPayload("username");
+        ClientConnection client = GameServer.getClientHandler().getClientByUsername(username);
+        if (client != null) {
+            GameSession session = client.getGameSession();
+            if (session != null) {
+                session.broadcast(message, username);
+            }
+        }
+
+        return Message.success(Type.PLAYER_MOVE, "you have been updated successfully.");
+    }
+
 }
