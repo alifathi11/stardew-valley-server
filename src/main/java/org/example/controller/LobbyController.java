@@ -191,7 +191,7 @@ public class LobbyController {
             // Return Response
             Map<String, Object> payload = new HashMap<>();
             payload.put("status", "success");
-            payload.put("message", "You have successfully joined the lobby.");
+            payload.put("content", "You have successfully joined the lobby.");
             payload.put("lobby_id", lobbyId);
             return new Message(Type.REQUEST_JOIN, payload);
 
@@ -238,7 +238,7 @@ public class LobbyController {
 
             Map<String, Object> responsePayload = new HashMap<>();
             responsePayload.put("status", "success");
-            responsePayload.put("message", "you have successfully left the lobby.");
+            responsePayload.put("content", "you have successfully left the lobby.");
             responsePayload.put("lobby_id", lobbyId);
 
             return new Message(Type.REQUEST_LEAVE_LOBBY, responsePayload);

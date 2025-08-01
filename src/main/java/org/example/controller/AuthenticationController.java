@@ -34,7 +34,7 @@ public class AuthenticationController {
 
         // validation
         Message validation = Validator.validateSignup(username, email, password);
-        if (validation.getType() == Type.ERROR) {
+        if (((String) validation.getFromPayload("status")).equalsIgnoreCase("error")) {
             return validation;
         }
 
@@ -53,8 +53,8 @@ public class AuthenticationController {
         // build response
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");
-        payload.put("message", "You have singed up successfully.");
-        Message response = new Message(Type.SUCCESS, payload);
+        payload.put("content", "You have singed up successfully.");
+        Message response = new Message(Type.SIGNUP, payload);
 
         return response;
 
@@ -81,11 +81,11 @@ public class AuthenticationController {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");
-        payload.put("message", "Logged in successfully.");
+        payload.put("content", "Logged in successfully.");
         payload.put("username", username);
         payload.put("token", token);
 
-        return new Message(Type.SUCCESS, payload);
+        return new Message(Type.LOGIN, payload);
     }
 
 }
