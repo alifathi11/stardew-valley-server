@@ -26,7 +26,7 @@ public class LobbyController {
         boolean isVisible = Objects.equals(message.getFromPayload("is_visible"), "true");
 
 
-        Lobby lobby = LobbyManager.createLobby(hostUsername, lobbyName, isPrivate, isVisible, password);
+        Lobby lobby = LobbyManager.createLobby(lobbyName, hostUsername, isPrivate, isVisible, password);
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");
 
@@ -47,8 +47,11 @@ public class LobbyController {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("from_user", fromUser);
+        payload.put("lobby_name", lobby.getName());
         payload.put("lobby_id", lobbyId);
         payload.put("members", new ArrayList<>(lobby.getMembers()));
+        payload.put("is_private", lobby.isPrivate());
+        payload.put("is_visible", lobby.isVisible());
         payload.put("invitation_token", token);
 
         Message invitaionMessage = new Message(Type.INVITATION, payload);

@@ -45,18 +45,26 @@ public class GameController {
             session.addPlayer(member, client);
         }
 
-        // Send create game signal for lobby members
-        Map<String, Object> payload = new ConcurrentHashMap<>();
-        payload.put("lobby_id", lobbyId);
 
-        Message response = new Message(Type.CREATE_GAME, payload);
+        // Send message to other players
+        Map<String, Object> gameCreatedPayload = new HashMap<>();
+        gameCreatedPayload.put("status", "success");
+        gameCreatedPayload.put("lobby_id", lobbyId);
 
-        for (String member : members) {
-            ClientConnection conn = GameServer.getClientHandler().getClientByUsername(member);
-            conn.send(response);
+        Message gameCreatedMessage = new Message(Type.CREATE_GAME, gameCreatedPayload);
+
+        for (String member : lobby.getMembers()) {
+            if (member.equalsIgnoreCase(username)) continue;
+            ClientConnection client = GameServer.getClientHandler().getClientByUsername(member);
+            client.send(gameCreatedMessage);
         }
 
-        return Message.success(Type.CREATE_GAME, "Game created");
+        // Send create game signal for lobby members
+        Map<String, Object> payload = new ConcurrentHashMap<>();
+        payload.put("status", "success");
+        payload.put("lobby_id", lobbyId);
+
+        return new Message(Type.CREATE_GAME, payload);
     }
 
     public Message chooseMap(Message message) {

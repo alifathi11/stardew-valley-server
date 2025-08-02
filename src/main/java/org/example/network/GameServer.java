@@ -1,22 +1,22 @@
 package org.example.network;
 
+import org.example.model.Game;
 import org.example.model.LobbyInvitation;
 import org.example.model.Message;
 import org.example.model.Type;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class GameServer {
 
-    private static final int PORT = 8080;
+    private static final int PORT = 12346;
     private static final int TICK_RATE_MS = 100;
 
     private static boolean running = true;
@@ -45,10 +45,10 @@ public class GameServer {
         clientHandler = new ClientHandler(selector, globalRequestQueue);
         requestProcessor = new RequestProcessor(clientHandler, globalRequestQueue);;
 
-//         Start request processor thread
+        // Start request processor thread
         requestProcessor.start();
 
-        scheduler.scheduleAtFixedRate(this::gameTick, 0, TICK_RATE_MS, TimeUnit.MILLISECONDS);
+//        scheduler.scheduleAtFixedRate(this::gameTick, 0, TICK_RATE_MS, TimeUnit.MILLISECONDS);
 
         System.out.println("Server started on port " + PORT);
         runSelectorPool();
@@ -75,7 +75,11 @@ public class GameServer {
                     if (key.isWritable()) {
                         clientHandler.writeToClient(key);
                     }
-                } catch (CancellationException ignored) {
+                } catch (IOException | CancelledKeyException e) {
+                    // Disconnect and cleanup the client
+                    closeConnection(key);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -90,6 +94,18 @@ public class GameServer {
         }
     }
 
+    private void closeConnection(SelectionKey key) {
+        try {
+            key.cancel();
+            var channel = (java.nio.channels.SocketChannel) key.channel();
+            clientHandler.removeConnection(channel); // You must implement this
+            channel.close();
+            System.out.println("Client disconnected and cleaned up");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void gameTick() {
         clientHandler.getChannelToConnection().forEach((channel, client) -> {
 
@@ -97,6 +113,7 @@ public class GameServer {
             client.send(gameUpdate);
         });
     }
+
 
     public void shutdown() {
         try {

@@ -68,6 +68,7 @@ public class UserRepository {
     public void save(User user) {
         String insert = """
             INSERT INTO users (id, username, name, email, password_hash, gender, security_question, is_in_any_game, score)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
         try (Connection conn = dataSource.getConnection();

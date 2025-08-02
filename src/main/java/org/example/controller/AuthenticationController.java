@@ -83,6 +83,8 @@ public class AuthenticationController {
         payload.put("status", "success");
         payload.put("content", "Logged in successfully.");
         payload.put("username", username);
+        payload.put("name", user.getName());
+        payload.put("gender", user.getGender().name());
         payload.put("token", token);
 
         return new Message(Type.LOGIN, payload);

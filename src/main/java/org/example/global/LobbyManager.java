@@ -26,6 +26,8 @@ public class LobbyManager {
                                 isVisible,
                                 password);
 
+        lobby.addMember(hostUsername);
+
         lobbies.put(lobby.getId(), lobby);
         userToLobbyId.put(hostUsername, lobby.getId());
         return lobby;
@@ -99,6 +101,10 @@ public class LobbyManager {
             return Message.error(Type.CHOOSE_MAP, "Map is already chosen.");
         }
 
+        if (userToMapNumber.containsKey(username)) {
+            return Message.error(Type.CHOOSE_MAP, "You have already chosen a map.");
+        }
+
         userToMapNumber.put(username, number);
 
         if (userToMapNumber.size() == lobby.getMembers().size()) {
@@ -115,19 +121,29 @@ public class LobbyManager {
 
         if (lobby == null) return;
 
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("lobby_id", lobby);
-        // TODO: add initial player positions
-
-        for (String member : lobby.getMembers()) {
-            Message message = new Message(Type.START_GAME, payload);
-            ClientConnection client = GameServer.getClientHandler().getClientByUsername(member);
-            client.send(message);
-        }
-
         lobby.setState(LobbyState.IN_GAME);
 
         Game game = new Game(lobby.getMembers(), lobby.getPlayerNames(), lobby.getPlayerGenders());
         lobby.getSession().setGame(game);
+
+        Message message = buildStartGameMessage(game);
+
+        for (String member : lobby.getMembers()) {
+            ClientConnection client = GameServer.getClientHandler().getClientByUsername(member);
+            client.send(message);
+        }
+    }
+
+    private Message buildStartGameMessage(Game game) {
+        Map<String, Object> mapPayload = new HashMap<>();
+        mapPayload.put("width", mapData.getWith());
+        mapPayload.put("height", mapData.getHeight());
+        mapPayload.put("data", mapData.getTiles());
+
+        List<Map<String, Object>> playerPayload = new ArrayList<>();
+        for (Player player : game.getPlayers()) {
+            Map<String, Object> pMap = new HashMap<>();
+            pMap.put("");
+        }
     }
 }

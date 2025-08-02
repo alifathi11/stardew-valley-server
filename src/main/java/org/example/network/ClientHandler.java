@@ -11,10 +11,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,12 +32,6 @@ public class ClientHandler {
         clientChannel.register(selector, SelectionKey.OP_READ);
         channelToConnection.put(clientChannel, new ClientConnection(clientChannel));
         System.out.println("Accepted connection from " + clientChannel.getRemoteAddress());
-
-        Message message = new Message(Type.SUCCESS, Map.of("test string", "success", "test list", Arrays.asList(1, 2, 3, 4),
-                "test list 2", Arrays.asList("ali1", "ali2", "ali3"), "test integer", 5));
-
-        channelToConnection.get(clientChannel).send(message);
-
     }
 
     public void readFromClient(SelectionKey key) {
@@ -98,6 +89,9 @@ public class ClientHandler {
     public void send(SocketChannel channel, Message msg) {
         try {
             String json = MessageParser.toJson(msg);
+
+            // Log
+            System.out.println("sending " + "\""+ json + "\"" + "to " + channel.getRemoteAddress());
             byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
             int length = jsonBytes.length;
 
@@ -141,6 +135,14 @@ public class ClientHandler {
             conn.setUsername(username);
             usernameToConnection.put(username, conn);
         }
+    }
+
+    public Collection<ClientConnection> getClients() {
+        return channelToConnection.values();
+    }
+
+    public void removeConnection(SocketChannel channel) {
+        channelToConnection.remove(channel);
     }
 
     public boolean isUserOnline(String username) {

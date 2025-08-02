@@ -1,5 +1,7 @@
 package org.example.model;
 
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.List;
 
 public class NPC {
@@ -7,15 +9,19 @@ public class NPC {
     private Profession profession;
     private Gender gender;
     private List<Quest> quests;
+    private Vector2 position;
 
     public NPC(String name,
                Profession profession,
                Gender gender,
-               List<Quest> quests) {
+               List<Quest> quests,
+               Vector2 position) {
+
         this.name = name;
         this.profession = profession;
         this.gender = gender;
         this.quests = quests;
+        this.position = position;
     }
 
     public String getName() {
@@ -48,5 +54,13 @@ public class NPC {
 
     public void setProfession(Profession profession) {
         this.profession = profession;
+    }
+
+    public Vector2 getPosition() {
+        return position;
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position = position;
     }
 }

@@ -1,5 +1,7 @@
 package org.example.model;
 
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,8 @@ public class Player {
     private Wallet wallet;
     private List<Quest> quests;
     private List<PlayerAbilities> playerAbilities;
+    private Vector2 position;
+    private PlayerMap playerMap;
 
     public Player(String username,
                   String name,
@@ -84,5 +88,12 @@ public class Player {
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public Vector2 getPosition() {
+        return position;
+    }
+    public void setPosition(Vector2 position) {
+        this.position = position;
     }
 }

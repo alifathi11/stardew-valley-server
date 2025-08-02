@@ -14,6 +14,8 @@ public enum Type {
     ACCEPT_INVITATION,
     TICK,
     CREATE_GAME,
+    GAME_CREATED,
+
     START_GAME,
     JOIN_LOBBY,
     CHOOSE_MAP,
@@ -22,5 +24,7 @@ public enum Type {
     REQUEST_LEAVE_LOBBY,
     LEAVE_LOBBY,
     PLAYER_MOVE,
+
+    ENTITY_UPDATE,
     ;
 }
