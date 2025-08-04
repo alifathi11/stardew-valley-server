@@ -79,6 +79,7 @@ public class GameController {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");
+
         payload.put("map_number", mapNumber);
         payload.put("lobby_id", lobbyId);
 
@@ -95,7 +96,7 @@ public class GameController {
             }
         }
 
-        return Message.success(Type.PLAYER_MOVE, "you have been updated successfully.");
+        return Message.success(Type.VOID, "position has been updated successfully.");
     }
 
 }

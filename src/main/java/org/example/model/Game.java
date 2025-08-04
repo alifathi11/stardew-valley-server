@@ -1,47 +1,213 @@
 package org.example.model;
 
+import com.badlogic.gdx.math.Vector2;
+import org.example.data.InitialPositionLoader;
+import org.example.data.NPCLoader;
+import org.example.data.QuestLoader;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
-import org.example.network.GameSession;
+import org.example.model.PlayerAbilities.Ability;
 
+import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Game {
-    private final Set<Player> players;
-    private final Set<NPC> npcs;
-    private final Set<Animal> animals;
-    private final ScheduledExecutorService executor;
+    private final String id;
+    private final Set<String> users;
+    private final Map<String, String> playerNames;
+    private final Map<String, Gender> playerGenders;
+    private final Map<String, Integer> userToMapNumber;
+    private final Map<Integer, Vector2> mapNumberToPosition;
+    private Map<Player, PlayerMap> playerToPlayerMap;
+    private List<Chat> chats;
 
-    public Game(Set<String> users,
-                Map<String, String> playerNames,
-                Map<String, Gender> playerGenders) {
+    private List<Player> players;
+    private List<NPC> npcs;
+    private Map<String, List<Quest>> questByNpc;
+    private Set<Animal> animals;
 
-        this.players = buildPlayers(users, playerNames, playerGenders);
-        this.executor = Executors.newScheduledThreadPool(1);
+    private GameMap map;
 
-        executor.scheduleAtFixedRate(() -> {
-           broadcastEntityUpdates();
-        }, 0, 100, TimeUnit.MILLISECONDS);
+    private final ScheduledExecutorService leaderboardExecutor;
+
+    public Game(String id, Lobby lobby) {
+
+        this.id = id;
+
+        this.users = lobby.getMembers();
+        this.playerNames = lobby.getPlayerNames();
+        this.playerGenders = lobby.getPlayerGenders();
+        this.userToMapNumber = lobby.getUserToMapNumber();
+
+        this.animals = new HashSet<>();
+        this.questByNpc = new HashMap<>();
+        this.npcs = new ArrayList<>();
+        this.players = new ArrayList<>();
+        this.playerToPlayerMap = new HashMap<>();
+        this.mapNumberToPosition = new HashMap<>();
+        this.chats = new ArrayList<>();
+
+        initialize();
+
+        this.leaderboardExecutor = Executors.newScheduledThreadPool(1);
+
+        leaderboardExecutor.scheduleAtFixedRate(this::broadcastLeaderboardUpdates, 0, 1000, TimeUnit.MILLISECONDS);
+
     }
 
-    private Set<Player> buildPlayers(Set<String> users,
-                                     Map<String, String> playerNames,
-                                     Map<String, Gender> playerGenders) {
-        Set<Player> players = new HashSet<>();
-        for (String user : users) {
-            players.add(new Player(user,
-                                   playerNames.get(user),
-                                   playerGenders.get(user)));
+
+
+    private void initialize() {
+        // Build map entities
+        buildPlayers();
+        buildNPCs();
+        buildQuests();
+
+        // Build map
+        buildMap();
+
+        // Build player maps
+        buildPlayerMaps();
+
+        // Build chats
+        buildChats();
+    }
+
+    private void buildChats() {
+        for (int i = 0; i < players.size(); i++) {
+            for (int j = i + 1; j < players.size(); j++) {
+                Player p1 = players.get(i);
+                Player p2 = players.get(j);
+
+                Chat chat = new Chat(p1, p2);
+                chats.add(chat);
+            }
+        }
+    }
+
+    public void sendMessage(String fromUser, String toUser, Message message) {
+        Chat chat = getChat(fromUser, toUser);
+        chat.addMessage(message);
+    }
+
+    public List<Message> getMessage(String user1, String user2) {
+        return getChat(user1, user2).getMessages();
+    }
+
+    private Chat getChat(String fromUser, String toUser) {
+        return chats.stream().filter(c -> (c.getFirst().getUsername().equalsIgnoreCase(fromUser) ||
+                                                 c.getFirst().getUsername().equalsIgnoreCase(toUser))  &&
+                                                (c.getSecond().getUsername().equalsIgnoreCase(fromUser) ||
+                                                 c.getSecond().getUsername().equalsIgnoreCase(toUser)))
+                                                .toList().getFirst();
+    }
+
+
+    private void buildMap() {
+        GameMap gameMap = new GameMap();
+        gameMap.build();
+
+        this.map = gameMap;
+    }
+
+    private void buildPlayerMaps() {
+
+        Tile[][] map1 = new Tile[MapSize.PLAYER_MAP_WIDTH.getSize()][MapSize.PLAYER_MAP_HEIGHT.getSize()];
+        for (int x = 0; x < MapSize.PLAYER_MAP_WIDTH.getSize(); x++) {
+            for (int y = MapSize.MAP_HEIGHT.getSize() - MapSize.PLAYER_MAP_HEIGHT.getSize(); y < MapSize.MAP_HEIGHT.getSize(); y++) {
+                map1[x][y - MapSize.MAP_HEIGHT.getSize() + MapSize.PLAYER_MAP_HEIGHT.getSize()] = map.getTile(x, y);
+            }
         }
 
-        return players;
+        Tile[][] map2 = new Tile[MapSize.PLAYER_MAP_WIDTH.getSize()][MapSize.PLAYER_MAP_HEIGHT.getSize()];
+        for (int x = MapSize.MAP_WIDTH.getSize() - MapSize.PLAYER_MAP_WIDTH.getSize(); x < MapSize.MAP_WIDTH.getSize(); x++) {
+            for (int y = MapSize.MAP_HEIGHT.getSize() - MapSize.PLAYER_MAP_HEIGHT.getSize(); y < MapSize.MAP_HEIGHT.getSize(); y++) {
+                map2[x - MapSize.MAP_WIDTH.getSize() + MapSize.PLAYER_MAP_WIDTH.getSize()]
+                        [y - MapSize.MAP_HEIGHT.getSize() + MapSize.PLAYER_MAP_HEIGHT.getSize()]
+                        = map.getTile(x, y);
+            }
+        }
+
+        Tile[][] map3 = new Tile[MapSize.PLAYER_MAP_WIDTH.getSize()][MapSize.PLAYER_MAP_HEIGHT.getSize()];
+        for (int x = 0; x < MapSize.PLAYER_MAP_WIDTH.getSize(); x++) {
+            for (int y = 0; y < MapSize.PLAYER_MAP_HEIGHT.getSize(); y++) {
+                map3[x][y] = map.getTile(x, y);
+            }
+        }
+
+
+        Tile[][] map4 = new Tile[MapSize.PLAYER_MAP_WIDTH.getSize()][MapSize.PLAYER_MAP_HEIGHT.getSize()];
+        for (int x = MapSize.MAP_WIDTH.getSize() - MapSize.PLAYER_MAP_WIDTH.getSize(); x < MapSize.MAP_WIDTH.getSize(); x++) {
+            for (int y = 0; y < MapSize.PLAYER_MAP_HEIGHT.getSize(); y++) {
+                map4[x - MapSize.MAP_WIDTH.getSize() + MapSize.PLAYER_MAP_WIDTH.getSize()][y] = map.getTile(x, y);
+            }
+        }
+
+
+        List<Tile[][]> playerMaps = new ArrayList<>();
+        playerMaps.add(map1);
+        playerMaps.add(map2);
+        playerMaps.add(map3);
+        playerMaps.add(map4);
+
+        for(Player player : players) {
+            int number = userToMapNumber.get(player.getUsername());
+            PlayerMap playerMap = new PlayerMap(playerMaps.get(number - 1));
+
+            playerToPlayerMap.put(player, playerMap);
+            player.setMap(playerMap);
+        }
+
     }
 
+    private void buildPlayers() {
 
-    public Set<Player> getPlayers() {
+        List<Player> players = new ArrayList<>();
+        Map<Integer, Vector2> mapNumberToPosition = InitialPositionLoader.loadMapPositions(new File("src/main/java/org/example/data/initialPositions.json"));
+
+        for (String user : users) {
+            players.add(new Player(UUID.randomUUID().toString(),
+                                   user,
+                                   playerNames.get(user),
+                                   playerGenders.get(user),
+                                   mapNumberToPosition.get(userToMapNumber.get(user))));
+        }
+
+        this.players = players;
+    }
+
+    private void buildNPCs() {
+        File file = new File("src/main/java/org/example/data/npc.json");
+        this.npcs = NPCLoader.loadNPCsFromFile(file);
+    }
+
+    private void buildQuests() {
+        File file = new File("src/main/java/org/example/data/quests.json");
+        this.questByNpc = QuestLoader.loadQuestsFromFile(file);
+
+        for (var entry : questByNpc.entrySet()) {
+            String name = entry.getKey();
+
+            NPC npc = npcs.stream()
+                    .filter(n -> Objects.equals(n.getName(), name))
+                    .findFirst()
+                    .orElse(null);
+
+            if (npc != null) {
+                npc.setQuests(entry.getValue());
+            } else {
+                System.err.println("NPC not found for name: " + name);
+            }
+        }
+
+    }
+
+    public List<Player> getPlayers() {
         return players;
     }
 
@@ -79,7 +245,7 @@ public class Game {
             Map<String, Object> payload = new HashMap<>();
             payload.put("id", animal.getId());
             payload.put("pos_x", animal.getPosition().x);
-            payload.put("pos_y", animal.getPositino().y);
+            payload.put("pos_y", animal.getPosition().y);
 
             animalPayload.add(payload);
         }
@@ -90,5 +256,60 @@ public class Game {
         result.put("animals", animalPayload);
 
         return result;
+    }
+
+    public List<NPC> getNPCs() {
+        return npcs;
+    }
+
+    public GameMap getMap() {
+        return map;
+    }
+
+    private void broadcastLeaderboardUpdates() {
+        try {
+
+            List<Map<String, Object>> leaderboard = new ArrayList<>();
+
+            for (Player player : players) {
+                Map<String, Object> payload = new HashMap<>();
+
+                payload.put("username", player.getUsername());
+                payload.put("coin", player.getWallet().getCoin());
+                payload.put("finished_quests", player.getQuests().stream()
+                        .filter(q -> q.isFinishedBy(player.getUsername()))
+                        .toList().size());
+
+                Map<String, Integer> abilityPayload = new HashMap<>();
+                PlayerAbilities playerAbilities = player.getPlayerAbilities();
+
+                abilityPayload.put("farming_ability", playerAbilities.getAbilityLevel(Ability.FARMING));
+                abilityPayload.put("mining_ability", playerAbilities.getAbilityLevel(Ability.MINING));
+                abilityPayload.put("nature_ability", playerAbilities.getAbilityLevel(Ability.NATURE));
+                abilityPayload.put("fishing_ability", playerAbilities.getAbilityLevel(Ability.FISHING));
+
+                payload.put("abilities", abilityPayload);
+
+                leaderboard.add(payload);
+            }
+
+            for (Player player : players) {
+                ClientConnection client = GameServer.getClientHandler().getClientByUsername(player.getUsername());
+                if (client != null) {
+                    client.send(new Message(Type.LEADERBOARD, Map.of("leaderboard", leaderboard)));
+                } else {
+                    System.err.println("No client connection for: " + player.getUsername());
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error in broadcastLeaderboardUpdates: " + e.getMessage());
+            e.printStackTrace(); // Very important in a scheduled task
+        }
+    }
+
+
+    public String getId() {
+        return id;
     }
 }

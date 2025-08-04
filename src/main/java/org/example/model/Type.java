@@ -1,6 +1,8 @@
 package org.example.model;
 
 public enum Type {
+    VOID,
+
     LOGIN,
     SIGNUP,
     SUCCESS,
@@ -26,5 +28,14 @@ public enum Type {
     PLAYER_MOVE,
 
     ENTITY_UPDATE,
+    SEND_MESSAGE,
+    SHOW_CHAT,
+    MESSAGE,
+
+    CHANGE_USERNAME,
+    CHANGE_PASSWORD,
+    CHANGE_NICKNAME,
+    CHANGE_EMAIL,
+    CHANGE_GENDER,
     ;
 }

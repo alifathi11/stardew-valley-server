@@ -1,6 +1,7 @@
 package org.example.model;
 
 import org.example.network.GameSession;
+import org.example.repository.UserRepository;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -91,10 +92,22 @@ public class Lobby {
 
     public void addMember(String member) {
         this.members.add(member);
+
+        Optional<User> userOpt = UserRepository.getInstance().findByUsername(member);
+        if (userOpt.isEmpty()) return;
+
+        User user = userOpt.get();
+
+        this.playerNames.put(member, user.getName());
+        this.playerGenders.put(member, user.getGender());
     }
 
     public void removeMember(String member) {
+
         this.members.remove(member);
+
+        this.playerNames.remove(member);
+        this.playerGenders.remove(member);
     }
 
     public String getHostUsername() {

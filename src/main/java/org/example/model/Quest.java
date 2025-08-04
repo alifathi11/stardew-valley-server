@@ -1,27 +1,57 @@
 package org.example.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Quest {
-    private String title;
-    private NPC npc;
-    private Player player;
+    private final String npcName;
+    private final ItemIDs item;
+    private final int itemAmount;
+    private final ItemIDs award;
+    private final int awardAmount;
 
-    public Quest(String title,
-                 NPC npc,
-                 Player player) {
-        this.title = title;
-        this.npc = npc;
-        this.player = player;
+    private final Map<String, Boolean> isFinished;
+
+    public Quest(String npcName,
+                 ItemIDs item,
+                 int itemAmount,
+                 ItemIDs award,
+                 int awardAmount) {
+
+        this.npcName = npcName;
+        this.item = item;
+        this.itemAmount = itemAmount;
+        this.award = award;
+        this.awardAmount = awardAmount;
+
+        this.isFinished = new HashMap<>();
     }
 
-    public String getTitle() {
-        return title;
+    public String getNpcName() {
+        return npcName;
     }
 
-    public Player getPlayer() {
-        return player;
+    public int getAwardAmount() {
+        return awardAmount;
     }
 
-    public NPC getNpc() {
-        return npc;
+    public int getItemAmount() {
+        return itemAmount;
+    }
+
+    public ItemIDs getAward() {
+        return award;
+    }
+
+    public ItemIDs getItem() {
+        return item;
+    }
+
+    public void finishedBy(String username) {
+        this.isFinished.put(username, true);
+    }
+
+    public boolean isFinishedBy(String username) {
+        return this.isFinished.containsKey(username) && this.isFinished.get(username);
     }
 }

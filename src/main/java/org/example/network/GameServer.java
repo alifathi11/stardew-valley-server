@@ -84,7 +84,7 @@ public class GameServer {
             }
 
             clientHandler.getChannelToConnection().forEach((channel, connection) -> {
-                if (!connection.getOutgoingMessages().isEmpty()) {
+                if (!connection.getOutgoingChunks().isEmpty()) {
                     SelectionKey key = channel.keyFor(selector);
                     if (key != null && key.isValid()) {
                         key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);

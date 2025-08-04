@@ -47,8 +47,8 @@ public class Message {
     }
 
 
-    public static Message success(Type type, String message) {
-        return new Message(type, Map.of("status", "success", "content", message));
+    public static Message success(Type type, String content) {
+        return new Message(type, Map.of("status", "success", "content", content));
     }
     public static Message error(Type type, String error) {
         return new Message(type, Map.of("status", "error", "error", error));

@@ -2,26 +2,31 @@ package org.example.model;
 
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NPC {
+    private final String id;
     private String name;
     private Profession profession;
     private Gender gender;
-    private List<Quest> quests;
     private Vector2 position;
 
-    public NPC(String name,
+    private List<Quest> quests;
+
+    public NPC(String id,
+               String name,
                Profession profession,
                Gender gender,
-               List<Quest> quests,
                Vector2 position) {
 
+        this.id = id;
         this.name = name;
         this.profession = profession;
         this.gender = gender;
-        this.quests = quests;
         this.position = position;
+
+        this.quests = new ArrayList<>();
     }
 
     public String getName() {
@@ -40,13 +45,6 @@ public class NPC {
         this.gender = gender;
     }
 
-    public List<Quest> getQuests() {
-        return quests;
-    }
-
-    public void setQuests(List<Quest> quests) {
-        this.quests = quests;
-    }
 
     public Profession getProfession() {
         return profession;
@@ -62,5 +60,13 @@ public class NPC {
 
     public void setPosition(Vector2 position) {
         this.position = position;
+    }
+
+    public void setQuests(List<Quest> quests) {
+        this.quests = quests;
+    }
+
+    public String getId() {
+        return id;
     }
 }

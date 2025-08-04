@@ -109,4 +109,34 @@ public class UserRepository {
 
         return Optional.empty();
     }
+
+    public boolean updateUser(User user) {
+        String update = "UPDATE users SET username = ?, name = ?, email = ?, password_hash = ?, gender = ?, " +
+                "security_question = ?, is_in_any_game = ?, score = ? WHERE id = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(update)) {
+
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getName());
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getPasswordHash());
+            stmt.setString(5, user.getGender().name());
+
+            String securityQuestion = user.getSecurityQuestion().getQuestion() + ":" + user.getSecurityQuestion().getAnswer();
+            stmt.setString(6, securityQuestion);
+            stmt.setBoolean(7, user.isInAnyGame());
+            stmt.setInt(8, user.getScore());
+
+            stmt.setString(9, user.getId());
+
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

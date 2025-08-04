@@ -1,0 +1,37 @@
+[
+  {
+    "name": "sebastian",
+    "gender": "MALE",
+    "profession": "LAZY_BUM",
+    "initial_x": 32,
+    "initial_y": 40
+  },
+  {
+    "name": "abigail",
+    "gender": "FEMALE",
+    "profession": "LAZY_BUM",
+    "initial_x": 34,
+    "initial_y": 45
+  },
+  {
+    "name": "robin",
+    "gender": "FEMALE",
+    "profession": "LAZY_BUM",
+    "initial_x": 35,
+    "initial_y": 50
+  },
+  {
+    "name": "harvey",
+    "gender": "MALE",
+    "profession": "LAZY_BUM",
+    "initial_x": 40,
+    "initial_y": 55
+  },
+  {
+    "name": "leah",
+    "gender": "FEMALE",
+    "profession": "LAZY_BUM",
+    "initial_x": 45,
+    "initial_y": 55
+  }
+]

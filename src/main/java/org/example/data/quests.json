@@ -1,0 +1,102 @@
+{
+  "sebastian": [
+    {
+      "itemId": "iron",
+      "itemAmount": 50,
+      "award": "diamond",
+      "awardAmount": 2
+    },
+    {
+      "itemId": "pumpkin_pie",
+      "itemAmount": 1,
+      "award": "gold_coin",
+      "awardAmount": 5000
+    },
+    {
+      "itemId": "rock",
+      "itemAmount": 150,
+      "award": "quartz",
+      "awardAmount": 50
+    }
+  ],
+  "abigail": [
+    {
+      "itemId": "gold_bar",
+      "itemAmount": 1,
+      "award": "friendship_level",
+      "awardAmount": 1
+    },
+    {
+      "itemId": "pumpkin",
+      "itemAmount": "1",
+      "award": "gold_coin",
+      "awardAmount": 500
+    },
+    {
+      "itemId": "wheat",
+      "itemAmount": 50,
+      "award": "iridium_sprinkler",
+      "awardAmount": 1
+    }
+  ],
+  "harvey": [
+    {
+      "itemId": "blue_jazz",
+      "itemAmount": 12,
+      "award": "gold_coin",
+      "awardAmount": 750
+    },
+    {
+      "itemId": "salmon",
+      "itemAmount": 1,
+      "award": "friendship_level",
+      "awardAmount": 1
+    },
+    {
+      "itemId": "wine",
+      "itemAmount": 1,
+      "award": "salad",
+      "awardAmount": 5
+    }
+  ],
+  "leah": [
+    {
+      "itemId": "wood",
+      "itemAmount": 10,
+      "award": "gold_coin",
+      "awardAmount": 500
+    },
+    {
+      "itemId": "salmon",
+      "itemAmount": 1,
+      "award": "",
+      "awardAmount": 1
+    },
+    {
+      "itemId": "wood",
+      "itemAmount": 200,
+      "award": "deluxe_scarecrow",
+      "awardAmount": 3
+    }
+  ],
+  "robin": [
+    {
+      "itemId": "wood",
+      "itemAmount": 80,
+      "award": "gold_coin",
+      "awardAmount": 1000
+    },
+    {
+      "itemId": "iron_bar",
+      "itemAmount": 10,
+      "award": "bee_house",
+      "awardAmount": 3
+    },
+    {
+      "itemId": "wood",
+      "itemAmount": 1000,
+      "award": "gold_coin",
+      "awardAmount": 25000
+    }
+  ]
+}

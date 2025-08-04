@@ -62,47 +62,75 @@ public class ClientHandler {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientConnection client = channelToConnection.get(channel);
 
-        Queue<Message> queue = client.getOutgoingMessages();
         try {
-            while (!queue.isEmpty()) {
-                // Poll message
-                Message msg = queue.poll();
+            Queue<ByteBuffer> chunks = client.getOutgoingChunks();
 
-                // Store user if login successes
-                Type msgType = msg.getType();
-                if (msgType == Type.LOGIN) {
-                    boolean success = Objects.equals(msg.getFromPayload("status"), "success");
-                    if (success) {
-                        String username = (String) msg.getFromPayload("username");
-                        onUserAuthenticated(username, channel);
-                    }
+            while (!chunks.isEmpty()) {
+                ByteBuffer buffer = chunks.peek();
+                channel.write(buffer);
+
+                if (buffer.hasRemaining()) {
+                    break;
+                } else {
+                    chunks.poll();
                 }
-
-                // Send message to user
-                send(channel, msg);
             }
-        } catch (Exception e) {
+
+            if (chunks.isEmpty()) {
+                key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+            }
+
+        } catch (IOException e) {
             closeConnection(channel);
         }
     }
 
-    public void send(SocketChannel channel, Message msg) {
+    public void queueMessage(SocketChannel channel, Message msg) {
+        ClientConnection client = channelToConnection.get(channel);
+        if (client == null) return;
+
         try {
+
+            if (msg.getType() == Type.LOGIN) {
+                boolean success = Objects.equals(msg.getFromPayload("status"), "success");
+                if (success) {
+                    String username = (String) msg.getFromPayload("username");
+                    client.setUsername(username);
+
+                    usernameToConnection.put(username, client);
+                    channelToConnection.put(channel, client);
+                }
+            }
+
             String json = MessageParser.toJson(msg);
 
             // Log
-            System.out.println("sending " + "\""+ json + "\"" + "to " + channel.getRemoteAddress());
+            System.out.println(json + " to " + channel.getRemoteAddress());
             byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
             int length = jsonBytes.length;
 
-            ByteBuffer buffer = ByteBuffer.allocate(4 + length);
-            buffer.putInt(length);
-            buffer.put(jsonBytes);
-            buffer.flip();
+            ByteBuffer header = ByteBuffer.allocate(4);
+            header.putInt(length);
+            header.flip();
 
-            channel.write(buffer);
+            client.getOutgoingChunks().add(header);
+
+            int chunkSize = 8 * 1024;
+            for (int i = 0; i < jsonBytes.length; i += chunkSize) {
+                int remaining = Math.min(chunkSize, jsonBytes.length - i);
+                ByteBuffer chunk = ByteBuffer.wrap(jsonBytes, i, remaining);
+                client.getOutgoingChunks().add(chunk);
+            }
+
+            SelectionKey key = channel.keyFor(selector);
+            if (key != null) {
+                key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+                selector.wakeup();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
+            closeConnection(channel);
         }
     }
 
@@ -118,6 +146,7 @@ public class ClientHandler {
     }
 
     public ClientConnection getClientByChannel(SocketChannel channel) {
+
         return channelToConnection.get(channel);
     }
 
@@ -125,9 +154,6 @@ public class ClientHandler {
         return usernameToConnection.get(username);
     }
 
-    public Map<SocketChannel, ClientConnection> getChannelToConnection() {
-        return channelToConnection;
-    }
 
     public void onUserAuthenticated(String username, SocketChannel channel) {
         ClientConnection conn = channelToConnection.get(channel);
@@ -139,6 +165,14 @@ public class ClientHandler {
 
     public Collection<ClientConnection> getClients() {
         return channelToConnection.values();
+    }
+
+    public Map<String, ClientConnection> getUsernameToConnection() {
+        return usernameToConnection;
+    }
+
+    public Map<SocketChannel, ClientConnection> getChannelToConnection() {
+        return channelToConnection;
     }
 
     public void removeConnection(SocketChannel channel) {

@@ -21,7 +21,7 @@ public class DatabaseInitializer {
             // Create users table
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS users (
-                    id TEXT PRIMARY KEY,
+                    id TEXT PRIMARY KEY NOT NULL,
                     username TEXT NOT NULL UNIQUE,
                     name TEXT,
                     email TEXT NOT NULL UNIQUE,
@@ -35,7 +35,7 @@ public class DatabaseInitializer {
             """);
 
 
-            // Create auth_tickets table
+            // Create auth-token table
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS auth_tokens (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,8 +46,10 @@ public class DatabaseInitializer {
                 );
             """);
 
+            // Create invitation-token table
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS lobby_invite_tokens (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     token TEXT PRIMARY KEY,
                     expires_at TEXT NOT NULL,
                     invited_user_id TEXT NOT NULL,

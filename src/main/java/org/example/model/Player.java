@@ -1,45 +1,57 @@
 package org.example.model;
 
 import com.badlogic.gdx.math.Vector2;
+import org.example.controller.MessageHandler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class Player {
+    private String id;
     private String username;
     private String name;
     private Gender gender;
     private Wallet wallet;
     private List<Quest> quests;
-    private List<PlayerAbilities> playerAbilities;
+    private PlayerAbilities playerAbilities;
     private Vector2 position;
     private PlayerMap playerMap;
 
-    public Player(String username,
+    public Player(String id,
+                  String username,
                   String name,
-                  Gender gender) {
+                  Gender gender,
+                  Vector2 initialPosition) {
+
+        this.id = id;
         this.username = username;
         this.name = name;
         this.gender = gender;
+        this.position = initialPosition;
         this.wallet = new Wallet(0);
         this.quests = new ArrayList<>();
-        this.playerAbilities = new ArrayList<>();
+        this.playerAbilities = new PlayerAbilities();
     }
 
-    public Player(String username,
+    public Player(String id,
+                  String username,
                   String name,
                   Gender gender,
                   Wallet wallet,
                   List<Quest> quests,
-                  List<PlayerAbilities> playerAbilities) {
+                  PlayerAbilities playerAbilities,
+                  Map<String, List<Message>> chats) {
 
+        this.id = id;
         this.username = username;
         this.name = name;
         this.gender = gender;
         this.wallet = wallet;
         this.quests = quests;
         this.playerAbilities = playerAbilities;
-
     }
 
     public List<Quest> getQuests() {
@@ -58,12 +70,8 @@ public class Player {
         this.wallet = wallet;
     }
 
-    public List<PlayerAbilities> getPlayerAbilities() {
+    public PlayerAbilities getPlayerAbilities() {
         return playerAbilities;
-    }
-
-    public void setPlayerAbilities(List<PlayerAbilities> playerAbilities) {
-        this.playerAbilities = playerAbilities;
     }
 
     public String getUsername() {
@@ -95,5 +103,13 @@ public class Player {
     }
     public void setPosition(Vector2 position) {
         this.position = position;
+    }
+
+    public void setMap(PlayerMap playerMap) {
+        this.playerMap = playerMap;
+    }
+
+    public String getId() {
+        return id;
     }
 }

@@ -1,0 +1,18 @@
+{
+  "map1": {
+    "initial_x": 27,
+    "initial_y": 93
+  },
+  "map2": {
+    "initial_x": 97,
+    "initial_y": 93
+  },
+  "map3": {
+    "initial_x": 27,
+    "initial_y": 23
+  },
+  "map4": {
+    "initial_x": 97,
+    "initial_y": 23
+  }
+}

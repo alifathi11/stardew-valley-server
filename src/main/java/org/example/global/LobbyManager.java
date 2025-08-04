@@ -1,9 +1,13 @@
 package org.example.global;
 
+import com.badlogic.gdx.math.Vector2;
+import org.example.data.InitialPositionLoader;
 import org.example.model.*;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
+import org.example.repository.UserRepository;
 
+import java.io.File;
 import java.sql.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,11 +24,11 @@ public class LobbyManager {
                                     String password) {
 
         Lobby lobby = new Lobby(UUID.randomUUID().toString(),
-                                lobbyName,
-                                hostUsername,
-                                isPrivate,
-                                isVisible,
-                                password);
+                lobbyName,
+                hostUsername,
+                isPrivate,
+                isVisible,
+                password);
 
         lobby.addMember(hostUsername);
 
@@ -61,7 +65,7 @@ public class LobbyManager {
 
         // Change the host of the lobby if user was host
         if (!lobby.getMembers().isEmpty() &&
-             lobby.getHostUsername().equalsIgnoreCase(username)) {
+                lobby.getHostUsername().equalsIgnoreCase(username)) {
 
             String newHost = new ArrayList<>(lobby.getMembers()).get(0);
             lobby.setHostUsername(newHost);
@@ -107,7 +111,7 @@ public class LobbyManager {
 
         userToMapNumber.put(username, number);
 
-        if (userToMapNumber.size() == lobby.getMembers().size()) {
+        if (userToMapNumber.size() >= lobby.getMembers().size()) {
             startGame(lobbyId);
         }
 
@@ -123,9 +127,9 @@ public class LobbyManager {
 
         lobby.setState(LobbyState.IN_GAME);
 
-        Game game = new Game(lobby.getMembers(), lobby.getPlayerNames(), lobby.getPlayerGenders());
-        lobby.getSession().setGame(game);
+        Game game = new Game(UUID.randomUUID().toString(), lobby);
 
+        lobby.getSession().setGame(game);
         Message message = buildStartGameMessage(game);
 
         for (String member : lobby.getMembers()) {
@@ -134,16 +138,46 @@ public class LobbyManager {
         }
     }
 
-    private Message buildStartGameMessage(Game game) {
-        Map<String, Object> mapPayload = new HashMap<>();
-        mapPayload.put("width", mapData.getWith());
-        mapPayload.put("height", mapData.getHeight());
-        mapPayload.put("data", mapData.getTiles());
+    private static Message buildStartGameMessage(Game game) {
 
         List<Map<String, Object>> playerPayload = new ArrayList<>();
         for (Player player : game.getPlayers()) {
-            Map<String, Object> pMap = new HashMap<>();
-            pMap.put("");
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("id", player.getId());
+            payload.put("username", player.getUsername());
+            payload.put("name", player.getName());
+            payload.put("gender", player.getGender());
+            payload.put("pos_x", player.getPosition().x);
+            payload.put("pos_y", player.getPosition().y);
+
+            playerPayload.add(payload);
         }
+
+        List<Map<String, Object>> NPCPayload = new ArrayList<>();
+        for (NPC npc : game.getNPCs()) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("id", npc.getId());
+            payload.put("name", npc.getName());
+            payload.put("pos_x", npc.getPosition().x);
+            payload.put("pos_y", npc.getPosition().y);
+
+            NPCPayload.add(payload);
+        }
+
+
+        String[][] map = new String[MapSize.MAP_WIDTH.getSize()][MapSize.MAP_HEIGHT.getSize()];
+        for (int x = 0; x < MapSize.MAP_WIDTH.getSize(); x++) {
+            for (int y = 0; y < MapSize.MAP_HEIGHT.getSize(); y++) {
+                map[x][y] = game.getMap().getTile(x, y).getId().name().toLowerCase();
+            }
+        }
+
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("players", playerPayload);
+        payload.put("npcs", NPCPayload);
+//        payload.put("map", map);
+
+        return new Message(Type.START_GAME, payload);
     }
 }

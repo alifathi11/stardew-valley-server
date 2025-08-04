@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.Map;
 
 public class Animal {
+    private final String id;
     private String name;
     private Player owner;
     private Vector2 position;
@@ -16,9 +17,11 @@ public class Animal {
     private Map<ItemInstance, Integer> products;
 
 
-    public Animal(String name,
+    public Animal(String id,
+                  String name,
                   Player owner,
                   Vector2 position) {
+        this.id = id;
         this.name = name;
         this.owner = owner;
         this.position = position;
@@ -67,4 +70,9 @@ public class Animal {
     public void setFed(boolean fed) {
         isFed = fed;
     }
+
+    public String getId() {
+        return id;
+    }
+
 }

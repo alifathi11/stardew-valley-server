@@ -1,50 +1,46 @@
 package org.example.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PlayerAbilities {
-    private int farmingAbility;
-    private int miningAbility;
-    private int fishingAbility;
-    private int natureAbility;
+    private final Map<Ability, Integer> abilities;
+
+    public PlayerAbilities() {
+        this.abilities = new HashMap<>();
+        abilities.put(Ability.FARMING, 0);
+        abilities.put(Ability.MINING, 0);
+        abilities.put(Ability.FISHING, 0);
+        abilities.put(Ability.NATURE, 0);
+    }
 
     public PlayerAbilities(int farmingAbility,
                            int miningAbility,
                            int fishingAbility,
                            int natureAbility) {
-        this.farmingAbility = farmingAbility;
-        this.miningAbility = miningAbility;
-        this.fishingAbility = fishingAbility;
-        this.natureAbility = natureAbility;
+
+        this.abilities = new HashMap<>();
+        abilities.put(Ability.FARMING, farmingAbility);
+        abilities.put(Ability.MINING, miningAbility);
+        abilities.put(Ability.FISHING, fishingAbility);
+        abilities.put(Ability.NATURE, natureAbility);
     }
 
-    public int getFarmingAbility() {
-        return farmingAbility;
+    public int getAbilityValue(Ability ability) {
+
+        return abilities.get(ability);
     }
 
-    public void setFarmingAbility(int farmingAbility) {
-        this.farmingAbility = farmingAbility;
+    public int getAbilityLevel(Ability ability) {
+        int x = Math.max(0, abilities.get(ability) - 50);
+        return x / 100;
     }
 
-    public int getFishingAbility() {
-        return fishingAbility;
-    }
-
-    public void setFishingAbility(int fishingAbility) {
-        this.fishingAbility = fishingAbility;
-    }
-
-    public int getMiningAbility() {
-        return miningAbility;
-    }
-
-    public void setMiningAbility(int miningAbility) {
-        this.miningAbility = miningAbility;
-    }
-
-    public int getNatureAbility() {
-        return natureAbility;
-    }
-
-    public void setNatureAbility(int natureAbility) {
-        this.natureAbility = natureAbility;
+    public enum Ability {
+        FARMING,
+        MINING,
+        FISHING,
+        NATURE,
+        ;
     }
 }
