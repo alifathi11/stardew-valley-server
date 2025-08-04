@@ -1,19 +1,11 @@
 package org.example.repository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.example.model.User;
-import org.hibernate.annotations.processing.SQL;
-import org.springframework.stereotype.Repository;
+import org.example.model.user.User;
 
 
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public class UserRepository {

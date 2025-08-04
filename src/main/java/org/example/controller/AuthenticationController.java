@@ -1,7 +1,11 @@
 package org.example.controller;
 
+import org.example.model.consts.Gender;
+import org.example.model.consts.Type;
+import org.example.model.message_center.Message;
+import org.example.model.user.SecurityQuestion;
+import org.example.model.user.User;
 import org.example.repository.TokenRepository;
-import org.example.model.*;
 import org.example.repository.UserRepository;
 import org.example.utils.Hasher;
 

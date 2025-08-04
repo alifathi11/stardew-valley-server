@@ -1,7 +1,7 @@
 package org.example.controller;
 
-import org.example.model.Message;
-import org.example.model.Type;
+import org.example.model.message_center.Message;
+import org.example.model.consts.Type;
 
 public class MessageHandler {
 
@@ -10,6 +10,7 @@ public class MessageHandler {
     private static final GameController gameController = new GameController();
     private static final RelationController relationController = new RelationController();
     private static final ProfileController profileController = new ProfileController();
+    private static final RadioController radioController = new RadioController();
 
     public static Message handle(Message request) {
         switch (request.getType()) {
@@ -51,6 +52,14 @@ public class MessageHandler {
                 return profileController.changeNickname(request);
             case CHANGE_GENDER:
                 return profileController.changeGender(request);
+            case JOIN_RADIO:
+                return radioController.joinRadio(request);
+            case LEAVE_RADIO:
+                return radioController.leaveRadio(request);
+            case START_BROADCASTING:
+                return radioController.startBroadcasting(request);
+            case SEND_AUDIO_CHUNK:
+                return radioController.sendAudioChunk(request);
 
             default:
                 return Message.error(Type.ERROR, "Invalid argument");

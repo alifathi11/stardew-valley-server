@@ -1,17 +1,18 @@
 package org.example.global;
 
-import com.badlogic.gdx.math.Vector2;
-import org.example.data.InitialPositionLoader;
-import org.example.model.*;
+import org.example.model.consts.LobbyState;
+import org.example.model.consts.MapSize;
+import org.example.model.consts.Type;
+import org.example.model.game_models.Game;
+import org.example.model.game_models.NPC;
+import org.example.model.game_models.Player;
+import org.example.model.lobby_models.Lobby;
+import org.example.model.message_center.Message;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
-import org.example.repository.UserRepository;
 
-import java.io.File;
-import java.sql.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class LobbyManager {
     private static final Map<String, Lobby> lobbies = new ConcurrentHashMap<>();

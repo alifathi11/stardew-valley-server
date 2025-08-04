@@ -2,8 +2,8 @@ package org.example.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.model.ItemIDs;
-import org.example.model.Quest;
+import org.example.model.consts.ItemIDs;
+import org.example.model.game_models.Quest;
 
 import java.io.File;
 import java.util.*;

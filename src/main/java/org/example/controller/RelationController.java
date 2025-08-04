@@ -1,8 +1,8 @@
 package org.example.controller;
 
-import org.example.model.Game;
-import org.example.model.Message;
-import org.example.model.Type;
+import org.example.model.game_models.Game;
+import org.example.model.message_center.Message;
+import org.example.model.consts.Type;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
 import org.example.network.GameSession;

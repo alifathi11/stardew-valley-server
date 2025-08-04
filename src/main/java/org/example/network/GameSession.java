@@ -1,7 +1,7 @@
 package org.example.network;
 
-import org.example.model.Game;
-import org.example.model.Message;
+import org.example.model.game_models.Game;
+import org.example.model.message_center.Message;
 
 import java.util.Collection;
 import java.util.Map;

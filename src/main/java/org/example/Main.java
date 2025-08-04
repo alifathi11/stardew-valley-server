@@ -3,9 +3,6 @@ package org.example;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.example.data.DatabaseInitializer;
-import org.example.model.Gender;
-import org.example.model.SecurityQuestion;
-import org.example.model.User;
 import org.example.network.GameServer;
 import org.example.network.ServerConfig;
 import org.example.repository.LobbyInviteTokenRepository;
@@ -16,7 +13,6 @@ import org.example.utils.ConfigLoader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.Stack;
 
 public class Main {
     public static void main(String[] args) throws Exception {

@@ -1,8 +1,7 @@
 package org.example.controller;
 
-import org.example.model.Message;
-import org.example.model.Type;
-import org.ietf.jgss.GSSName;
+import org.example.model.message_center.Message;
+import org.example.model.consts.Type;
 
 public class Validator {
 

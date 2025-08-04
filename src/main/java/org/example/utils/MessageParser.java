@@ -1,8 +1,7 @@
 package org.example.utils;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.model.Message;
+import org.example.model.message_center.Message;
 
 public class MessageParser {
     private static final ObjectMapper mapper = new ObjectMapper();

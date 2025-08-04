@@ -1,14 +1,10 @@
 package org.example.network;
 
 import org.example.controller.MessageHandler;
-import org.example.model.Message;
-import org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect;
+import org.example.model.message_center.Message;
 
 import java.nio.channels.SocketChannel;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class RequestProcessor {
     private final ClientHandler clientHandler;

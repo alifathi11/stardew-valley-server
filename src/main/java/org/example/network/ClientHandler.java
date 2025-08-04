@@ -1,7 +1,7 @@
 package org.example.network;
 
-import org.example.model.Message;
-import org.example.model.Type;
+import org.example.model.message_center.Message;
+import org.example.model.consts.Type;
 import org.example.utils.MessageParser;
 
 import java.io.*;

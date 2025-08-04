@@ -1,15 +1,12 @@
 package org.example.controller;
 
-import org.example.model.Gender;
-import org.example.model.Message;
-import org.example.model.Type;
-import org.example.model.User;
+import org.example.model.consts.Gender;
+import org.example.model.message_center.Message;
+import org.example.model.consts.Type;
+import org.example.model.user.User;
 import org.example.repository.UserRepository;
 import org.example.utils.Hasher;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 
-import javax.swing.text.html.Option;
-import java.nio.MappedByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

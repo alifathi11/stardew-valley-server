@@ -1,9 +1,8 @@
 package org.example.network;
 
-import org.example.model.Game;
-import org.example.model.LobbyInvitation;
-import org.example.model.Message;
-import org.example.model.Type;
+import org.example.model.lobby_models.LobbyInvitation;
+import org.example.model.message_center.Message;
+import org.example.model.consts.Type;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

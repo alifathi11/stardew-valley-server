@@ -3,10 +3,9 @@ package org.example.data;
 import com.badlogic.gdx.math.Vector2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.model.Gender;
-import org.example.model.NPC;
-import org.example.model.Profession;
-import org.example.model.Quest;
+import org.example.model.consts.Gender;
+import org.example.model.game_models.NPC;
+import org.example.model.consts.Profession;
 
 import java.io.File;
 import java.util.ArrayList;
