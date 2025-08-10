@@ -1,12 +1,19 @@
 package org.example.controller;
 
+import ch.qos.logback.core.net.server.Client;
+import com.badlogic.gdx.math.Vector2;
+import org.example.LLM.LLMClient;
 import org.example.global.LobbyManager;
+import org.example.model.consts.ItemIDs;
+import org.example.model.consts.MapSize;
 import org.example.model.consts.Type;
+import org.example.model.game_models.*;
 import org.example.model.lobby_models.Lobby;
 import org.example.model.message_center.Message;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
 import org.example.network.GameSession;
+import org.hibernate.metamodel.model.domain.internal.MappedSuperclassSqmPathSource;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +37,6 @@ public class GameController {
         if (lobby.getMembers().size() < 2) {
             return Message.error(Type.CREATE_GAME, "Lobby must have at least 2 members to start the game.");
         }
-
 
         // Create game session
         GameSession session = new GameSession(UUID.randomUUID().toString());
@@ -85,13 +91,29 @@ public class GameController {
 
     public Message playerMove(Message message) {
         String username = (String) message.getFromPayload("username");
+        double posX = (double) message.getFromPayload("pos_x");
+        double posY = (double) message.getFromPayload("pos_y");
+
         ClientConnection client = GameServer.getClientHandler().getClientByUsername(username);
-        if (client != null) {
-            GameSession session = client.getGameSession();
-            if (session != null) {
-                session.broadcast(message, username);
-            }
+        if (client == null) {
+            return Message.error(Type.VOID, "client doesn't exist.");
         }
+
+        GameSession session = client.getGameSession();
+        if (session == null) {
+            return Message.error(Type.VOID, "session doesn't exist.");
+        }
+
+        Game game = session.getGame();
+        if (game == null) {
+            return Message.error(Type.VOID, "game doesn't exist.");
+        }
+
+
+        session.broadcast(message, username);
+
+        Player player = game.getPlayer(username);
+        player.setPosition((float) posX, (float) posY);
 
         return Message.success(Type.VOID, "position has been updated successfully.");
     }

@@ -6,7 +6,7 @@ import org.example.model.generic.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Chat extends Pair<Player> {
+public class Chat extends Pair<Player, Player> {
 
     private final List<Message> messages;
 

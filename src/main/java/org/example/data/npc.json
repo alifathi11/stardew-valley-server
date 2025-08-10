@@ -1,36 +1,50 @@
 [
   {
     "name": "sebastian",
+    "characteristics": "Reserved, introspective, and somewhat rebellious. Values independence and personal space. Often drawn to solitary hobbies and night-time activities.",
     "gender": "MALE",
     "profession": "LAZY_BUM",
+    "favorite_items": ["wool", "pumpkin_pie", "pizza"],
+    "days_to_last_quest": 3,
     "initial_x": 32,
     "initial_y": 40
   },
   {
     "name": "abigail",
+    "characteristics": "Adventurous, bold, and curious. Thrives on challenges and enjoys exploring the unknown. Has a playful streak and a taste for the unconventional.",
     "gender": "FEMALE",
     "profession": "LAZY_BUM",
+    "favorite_items": ["rock", "iron", "coffee"],
     "initial_x": 34,
     "initial_y": 45
   },
   {
     "name": "robin",
+    "characteristics": "Friendly, energetic, and optimistic. Loves helping others and approaches life with enthusiasm. Quick to start new projects and enjoys social interaction.",
     "gender": "FEMALE",
     "profession": "LAZY_BUM",
+    "favorite_items": ["spaghetti", "wood", "iron_bar"],
+    "days_to_last_quest": 10,
     "initial_x": 35,
     "initial_y": 50
   },
   {
     "name": "harvey",
+    "characteristics": "Gentle, introverted, and caring. Enjoys quiet moments, thoughtful conversations, and calm activities. Tends to avoid confrontation and prefers harmony.",
     "gender": "MALE",
     "profession": "LAZY_BUM",
+    "favorite_items": ["coffee", "pickle", "wine"],
+    "days_to_last_quest": 5,
     "initial_x": 40,
     "initial_y": 55
   },
   {
     "name": "leah",
+    "characteristics": "Creative, free-spirited, and deeply connected to nature. Finds beauty in simplicity and often seeks inspiration from her surroundings. Warm and open-hearted.",
     "gender": "FEMALE",
     "profession": "LAZY_BUM",
+    "favorite_items": ["salad", "grape", "wine"],
+    "days_to_last_quest": 7,
     "initial_x": 45,
     "initial_y": 55
   }

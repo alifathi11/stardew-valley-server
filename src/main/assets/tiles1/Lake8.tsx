@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tileset version="1.10" tiledversion="1.11.2" name="Lake8" tilewidth="32" tileheight="32" tilecount="35" columns="7">
+ <image source="Lake8.png" width="224" height="160"/>
+ <tile id="0" type="Lake"/>
+ <tile id="1" type="Lake"/>
+ <tile id="2" type="Lake"/>
+ <tile id="3" type="Lake"/>
+ <tile id="4" type="Lake"/>
+ <tile id="5" type="Lake"/>
+ <tile id="6" type="Lake"/>
+ <tile id="7" type="Lake"/>
+ <tile id="8" type="Lake"/>
+ <tile id="9" type="Lake"/>
+ <tile id="10" type="Lake"/>
+ <tile id="11" type="Lake"/>
+ <tile id="12" type="Lake"/>
+ <tile id="13" type="Lake"/>
+ <tile id="14" type="Lake"/>
+ <tile id="15" type="Lake"/>
+ <tile id="16" type="Lake"/>
+ <tile id="17" type="Lake"/>
+ <tile id="18" type="Lake"/>
+ <tile id="19" type="Lake"/>
+ <tile id="20" type="Lake"/>
+ <tile id="21" type="Lake"/>
+ <tile id="22" type="Lake"/>
+ <tile id="23" type="Lake"/>
+ <tile id="24" type="Lake"/>
+ <tile id="25" type="Lake"/>
+ <tile id="26" type="Lake"/>
+ <tile id="27" type="Lake"/>
+ <tile id="28" type="Lake"/>
+ <tile id="29" type="Lake"/>
+ <tile id="30" type="Lake"/>
+ <tile id="31" type="Lake"/>
+ <tile id="32" type="Lake"/>
+ <tile id="33" type="Lake"/>
+ <tile id="34" type="Lake"/>
+</tileset>

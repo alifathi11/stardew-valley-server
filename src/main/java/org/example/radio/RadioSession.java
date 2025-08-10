@@ -1,11 +1,13 @@
 package org.example.radio;
 
+import com.badlogic.gdx.maps.MapObject;
 import org.example.model.game_models.Game;
 import org.example.network.GameServer;
 
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,11 +15,13 @@ public class RadioSession {
     private final String sessionId;
     private final Set<SocketChannel> listeners = ConcurrentHashMap.newKeySet();
     private final Deque<AudioChunk> buffer = new ArrayDeque<>();
+    private final Map<String, Object> format;
 
     private static final int MAX_BUFFER_SIZE = 100;
 
-    public RadioSession(String sessionId) {
+    public RadioSession(String sessionId, Map<String, Object> format) {
         this.sessionId = sessionId;
+        this.format = format;
     }
 
     public void broadcast(AudioChunk chunk) {
@@ -50,5 +54,9 @@ public class RadioSession {
     public void clear() {
         listeners.clear();
         buffer.clear();
+    }
+
+    public Map<String, Object> getFormat() {
+        return format;
     }
 }

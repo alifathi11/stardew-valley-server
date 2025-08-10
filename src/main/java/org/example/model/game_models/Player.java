@@ -1,5 +1,6 @@
 package org.example.model.game_models;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import org.example.model.consts.Gender;
 import org.example.model.message_center.Message;
@@ -17,6 +18,15 @@ public class Player {
     private Vector2 position;
     private PlayerMap playerMap;
 
+    // Relations
+    private final List<NPCRelation> npcRelations;
+    private final List<PlayerRelation> playerRelations;
+
+    // Graphics
+    private Rectangle collisionRect;
+    public static final float width = 16f;
+    public static final float height = 32f;
+
     public Player(String id,
                   String username,
                   String name,
@@ -30,7 +40,17 @@ public class Player {
         this.position = initialPosition;
         this.wallet = new Wallet(0);
         this.quests = new ArrayList<>();
+
         this.playerAbilities = new PlayerAbilities();
+        this.npcRelations = new ArrayList<>();
+        this.playerRelations = new ArrayList<>();
+
+        this.collisionRect = new Rectangle(
+                (position.x - width / 2f),
+                (position.y - height / 2f),
+                width,
+                height
+        );
     }
 
     public Player(String id,
@@ -102,11 +122,44 @@ public class Player {
         this.position = position;
     }
 
+    public void setPosition(float posX, float posY) {
+        position.x = posX;
+        position.y = posY;
+    }
+
     public void setMap(PlayerMap playerMap) {
         this.playerMap = playerMap;
     }
 
     public String getId() {
         return id;
+    }
+
+    public Rectangle getCollisionRect() {
+        return collisionRect;
+    }
+
+    public void addQuest(Quest quest) {
+        this.quests.add(quest);
+    }
+
+    public void finishQuest(Quest quest) {
+        quests.remove(quest);
+    }
+
+    public List<NPCRelation> getNpcRelations() {
+        return npcRelations;
+    }
+
+    public List<PlayerRelation> getPlayerRelations() {
+        return playerRelations;
+    }
+
+    public void addNPCRelation(NPCRelation relation) {
+        npcRelations.add(relation);
+    }
+
+    public void addPlayerRelation(PlayerRelation relation) {
+        playerRelations.add(relation);
     }
 }

@@ -1,19 +1,18 @@
 package org.example.model.generic;
 
-public class Pair<T> {
-    private final T first;
-    private final T second;
+public class Pair<P, Q> {
+    private final P first;
+    private final Q second;
 
-    public Pair(T first, T second) {
+    public Pair(P first, Q second) {
         this.first = first;
         this.second = second;
     }
 
-    public T getFirst() {
+    public P getFirst() {
         return first;
     }
-
-    public T getSecond() {
+    public Q getSecond() {
         return second;
     }
 }

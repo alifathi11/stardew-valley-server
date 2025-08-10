@@ -29,6 +29,12 @@ public class GameSession {
         }
     }
 
+    public void broadcast(Message message) {
+        for (var entry : players.entrySet()) {
+            entry.getValue().send(message);
+        }
+    }
+
     public Collection<ClientConnection> getPlayers() {
         return players.values();
     }
@@ -39,5 +45,9 @@ public class GameSession {
 
     public Game getGame() {
         return game;
+    }
+
+    public void finish() {
+
     }
 }

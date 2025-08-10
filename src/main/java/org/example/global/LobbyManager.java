@@ -6,10 +6,12 @@ import org.example.model.consts.Type;
 import org.example.model.game_models.Game;
 import org.example.model.game_models.NPC;
 import org.example.model.game_models.Player;
+import org.example.model.game_models.Shop;
 import org.example.model.lobby_models.Lobby;
 import org.example.model.message_center.Message;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
+import org.hibernate.exception.spi.TemplatedViolatedConstraintNameExtractor;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +38,15 @@ public class LobbyManager {
         lobbies.put(lobby.getId(), lobby);
         userToLobbyId.put(hostUsername, lobby.getId());
         return lobby;
+    }
+
+    public static void deleteLobby(Lobby lobby) {
+        lobbies.remove(lobby.getId());
+        for (var entry : userToLobbyId.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(lobby.getId())) {
+                userToLobbyId.remove(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     public static boolean joinLobby(String username, String lobbyId) {
@@ -128,7 +139,7 @@ public class LobbyManager {
 
         lobby.setState(LobbyState.IN_GAME);
 
-        Game game = new Game(UUID.randomUUID().toString(), lobby);
+        Game game = new Game(UUID.randomUUID().toString(), lobby.getSession(), lobby);
 
         lobby.getSession().setGame(game);
         Message message = buildStartGameMessage(game);
@@ -165,19 +176,28 @@ public class LobbyManager {
             NPCPayload.add(payload);
         }
 
+        List<Map<String, Object>> shopPayload = new ArrayList<>();
+        for (Shop shop : game.getShops().values()) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("id", shop.getId());
+            payload.put("shop_name", shop.getShopName());
+            payload.put("npc_name", shop.getOwner().getName());
 
-        String[][] map = new String[MapSize.MAP_WIDTH.getSize()][MapSize.MAP_HEIGHT.getSize()];
-        for (int x = 0; x < MapSize.MAP_WIDTH.getSize(); x++) {
-            for (int y = 0; y < MapSize.MAP_HEIGHT.getSize(); y++) {
-                map[x][y] = game.getMap().getTile(x, y).getId().name().toLowerCase();
-            }
+            shopPayload.add(payload);
         }
+
+//        String[][] map = new String[MapSize.MAP_WIDTH.getSize()][MapSize.MAP_HEIGHT.getSize()];
+//        for (int x = 0; x < MapSize.MAP_WIDTH.getSize(); x++) {
+//            for (int y = 0; y < MapSize.MAP_HEIGHT.getSize(); y++) {
+//                map[x][y] = game.getMap().getTile(x, y).getId().name().toLowerCase();
+//            }
+//        }
 
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("players", playerPayload);
         payload.put("npcs", NPCPayload);
-//        payload.put("map", map);
+        payload.put("shops", shopPayload);
 
         return new Message(Type.START_GAME, payload);
     }

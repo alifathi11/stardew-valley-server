@@ -1,9 +1,10 @@
 package org.example.model.game_models;
 
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
-import org.example.data.InitialPositionLoader;
-import org.example.data.NPCLoader;
-import org.example.data.QuestLoader;
+import org.example.controller.NPC.CollisionController;
+import org.example.data.*;
 import org.example.model.consts.Gender;
 import org.example.model.consts.MapSize;
 import org.example.model.consts.Type;
@@ -12,6 +13,7 @@ import org.example.model.message_center.Message;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
 import org.example.model.game_models.PlayerAbilities.Ability;
+import org.example.network.GameSession;
 import org.example.radio.RadioManager;
 
 import java.io.File;
@@ -21,50 +23,115 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Game {
+
+    // Time
+    private final long npcDelta = 100;
+
+    // Unique identifier
     private final String id;
-    private final Set<String> users;
+    private final GameSession session;
+
+    // From lobby
     private final Map<String, String> playerNames;
     private final Map<String, Gender> playerGenders;
+
+    // User
+    private final Set<String> users;
     private final Map<String, Integer> userToMapNumber;
     private final Map<Integer, Vector2> mapNumberToPosition;
+
+    // Player
     private Map<Player, PlayerMap> playerToPlayerMap;
     private List<Chat> chats;
-
     private List<Player> players;
+
+    // NPC
     private List<NPC> npcs;
     private Map<String, List<Quest>> questByNpc;
+    private final Map<String, Quest> quests;
+
+
+    // Relation
+    private final List<NPCRelation> npcRelations;
+    private final List<PlayerRelation> playerRelations;
+
+    // Animal
     private Set<Animal> animals;
 
-    private GameMap map;
+    // Shop
+    private Map<String, Shop> shops;
 
+    // Map
+    private GameMap map;
+    private TiledMap tiledMap;
+
+    // Radio
     private final RadioManager radioManager;
 
+    // Vote
+    private Vote vote;
+    private boolean voteActive;
+
+    // Executor
     private final ScheduledExecutorService leaderboardExecutor;
+    private final ScheduledExecutorService updateNPC;
+    private final ScheduledExecutorService npcBroadcastExecutor;
 
-    public Game(String id, Lobby lobby) {
 
+    public Game(String id, GameSession session, Lobby lobby) {
+
+        //Unique Identifier
         this.id = id;
+        this.session = session;
 
-        this.users = lobby.getMembers();
-        this.playerNames = lobby.getPlayerNames();
+        // From lobby
         this.playerGenders = lobby.getPlayerGenders();
         this.userToMapNumber = lobby.getUserToMapNumber();
 
+        // User
+        this.users = lobby.getMembers();
+        this.playerNames = lobby.getPlayerNames();
+        this.mapNumberToPosition = new HashMap<>();
+
+        // Animal
         this.animals = new HashSet<>();
+
+        // Shop
+        this.shops = new HashMap<>();
+
+        // NPC
         this.questByNpc = new HashMap<>();
         this.npcs = new ArrayList<>();
+        this.quests = new HashMap<>();
+
+        // Player
         this.players = new ArrayList<>();
         this.playerToPlayerMap = new HashMap<>();
-        this.mapNumberToPosition = new HashMap<>();
         this.chats = new ArrayList<>();
 
+        // Relation
+        this.npcRelations = new ArrayList<>();
+        this.playerRelations = new ArrayList<>();
 
+        // Executors
         this.leaderboardExecutor = Executors.newScheduledThreadPool(1);
+        this.updateNPC = Executors.newScheduledThreadPool(1);
+        this.npcBroadcastExecutor = Executors.newScheduledThreadPool(1);
 
         leaderboardExecutor.scheduleAtFixedRate(this::broadcastLeaderboardUpdates, 0, 1000, TimeUnit.MILLISECONDS);
+        updateNPC.scheduleAtFixedRate(this::updateNPC, 0, npcDelta, TimeUnit.MILLISECONDS);
+        npcBroadcastExecutor.scheduleAtFixedRate(this::broadcastNPC, 0, 100, TimeUnit.MILLISECONDS);
 
+        // Radio
         this.radioManager = new RadioManager();
 
+        // Vote
+        this.voteActive = false;
+
+        // Collision controller
+        CollisionController.getInstance().init(this);
+
+        // Initialize
         initialize();
 
     }
@@ -77,6 +144,9 @@ public class Game {
         buildNPCs();
         buildQuests();
 
+        // Build Shops
+        buildShops();
+
         // Build map
         buildMap();
 
@@ -85,6 +155,10 @@ public class Game {
 
         // Build chats
         buildChats();
+
+        // Build Relations
+        buildNPCRelations();
+        buildPlayerRelations();
     }
 
     private void buildChats() {
@@ -122,6 +196,8 @@ public class Game {
         gameMap.build();
 
         this.map = gameMap;
+
+        this.tiledMap = new TmxMapLoader().load("src/main/assets/Map1.tmx");
     }
 
     private void buildPlayerMaps() {
@@ -208,7 +284,13 @@ public class Game {
                     .orElse(null);
 
             if (npc != null) {
+
                 npc.setQuests(entry.getValue());
+
+                for (Quest quest : entry.getValue()) {
+                    quests.put(quest.getId(), quest);
+                }
+
             } else {
                 System.err.println("NPC not found for name: " + name);
             }
@@ -216,8 +298,60 @@ public class Game {
 
     }
 
+    private void buildNPCRelations() {
+        for (Player player : players) {
+            for (NPC npc : npcs) {
+                NPCRelation relation = new NPCRelation(player, npc);
+                npcRelations.add(relation);
+                player.addNPCRelation(relation);
+            }
+        }
+    }
+
+    private void buildPlayerRelations() {
+        for (int i = 0; i < players.size() - 1; i++) {
+            for (int j = i + 1; j < players.size(); j++) {
+                Player p1 = players.get(i);
+                Player p2 = players.get(j);
+
+                PlayerRelation relation = new PlayerRelation(p1, p2);
+
+                p1.addPlayerRelation(relation);
+                p2.addPlayerRelation(relation);
+
+                playerRelations.add(relation);
+            }
+        }
+    }
+
+    private void buildShops() {
+
+        // Build shops
+        File shopFile = new File("src/main/java/org/example/data/shops.json");
+        shops = ShopLoader.loadShopsFromFile(shopFile);
+
+        // Add shop NPCs
+        for (Shop shop : shops.values()) {
+            NPC npc = shop.getOwner();
+            npcs.add(npc);
+        }
+
+        // Load shop items
+        if (shops == null) return;
+
+        File itemFile = new File("src/main/java/org/example/data/shop_items.json");
+
+        for (Shop shop : shops.values()) {
+            shop.setShopItems(ShopItemLoader.getShopItems(itemFile, shop.getShopName()));
+        }
+    }
+
     public List<Player> getPlayers() {
         return players;
+    }
+
+    public Player getPlayer(String username) {
+        return players.stream().filter(p -> p.getUsername().equalsIgnoreCase(username)).toList().getFirst();
     }
 
     private void broadcastEntityUpdates() {
@@ -313,10 +447,44 @@ public class Game {
 
         } catch (Exception e) {
             System.err.println("Error in broadcastLeaderboardUpdates: " + e.getMessage());
-            e.printStackTrace(); // Very important in a scheduled task
+            e.printStackTrace();
         }
     }
 
+    private void updateNPC() {
+        for (NPC npc : npcs) {
+            for (Player player : players) {
+                npc.getController().update((float) (npcDelta * 0.01), player);
+            }
+        }
+    }
+
+    private void broadcastNPC() {
+        try {
+            List<Map<String, Object>> payloads = new ArrayList<>();
+            for (NPC npc : npcs) {
+                Map<String, Object> payload = new HashMap<>();
+                payload.put("npc_id", npc.getId());
+                payload.put("pos_x", npc.getPosition().x);
+                payload.put("pos_y", npc.getPosition().y);
+
+                payloads.add(payload);
+            }
+
+            for (Player player : players) {
+                ClientConnection client = GameServer.getClientHandler().getClientByUsername(player.getUsername());
+                if (client != null) {
+                    client.send(new Message(Type.NPC_MOVE, Map.of("npc", payloads)));
+                } else {
+                    System.err.println("No client connection for: " + player.getUsername());
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error in broadcastNPC: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     public String getId() {
         return id;
@@ -324,5 +492,119 @@ public class Game {
 
     public RadioManager getRadioManager() {
         return radioManager;
+    }
+
+    public boolean startVoteFire(String target) {
+        if (!users.contains(target)) {
+            return false;
+        }
+
+        if (voteActive) {
+            return false;
+        }
+
+        this.vote = new Vote(Vote.VoteType.FIRE_PLAYER, target);
+        this.voteActive = true;
+        return true;
+    }
+
+    public boolean startVoteForceTerminate() {
+        if (voteActive) {
+            return false;
+        }
+
+        this.vote = new Vote(Vote.VoteType.FORCE_TERMINATE);
+        this.voteActive = true;
+        return true;
+    }
+
+    public void checkFire() {
+        if (this.vote.getType() != Vote.VoteType.FIRE_PLAYER) {
+            return;
+        }
+
+        int positive = this.vote.getPositive().get();
+
+        if (positive > users.size() / 2) {
+            fire(vote.getTargetUsername());
+        }
+
+    }
+
+    public void checkForceTerminate() {
+        if (this.vote.getType() != Vote.VoteType.FORCE_TERMINATE) {
+            return;
+        }
+
+        int positive = this.vote.getPositive().get();
+
+        if (positive > users.size() / 2) {
+            terminate();
+        }
+    }
+
+    private void fire(String username) {
+        users.remove(username);
+        userToMapNumber.remove(username);
+
+        Player player = players.stream().filter(p -> p.getUsername().equalsIgnoreCase(username)).toList().getFirst();
+        playerToPlayerMap.remove(player);
+
+        players.remove(player);
+        chats.removeIf((e) -> e.getFirst() == player || e.getSecond() == player);
+
+        session.broadcast(new Message(Type.FIRED, Map.of(
+                "username", username,
+                "content", username + " has been deported from the game."
+        )));
+    }
+
+    private void terminate() {
+        session.broadcast(new Message(Type.TERMINATED, Map.of(
+                "content", "game has been terminated by vote."
+        )));
+
+        this.finish();
+    }
+
+    public void finish() {
+        for (String user : users) {
+            ClientConnection client = GameServer.getClientHandler().getClientByUsername(user);
+            client.setGameSession(null);
+        }
+    }
+
+    public Vote getVote() {
+        return vote;
+    }
+
+    public TiledMap getTiledMap() {
+        return tiledMap;
+    }
+
+    public NPC getNPC(String id) {
+        return npcs.stream().filter(n -> n.getId().equals(id)).toList().getFirst();
+    }
+
+    public NPCRelation getNPCRelation(Player player, NPC npc) {
+        for (NPCRelation relation : npcRelations) {
+            if ((relation.getFirst() == player) && (relation.getSecond() == npc)) {
+                return relation;
+            }
+        }
+
+        return null;
+    }
+
+    public Quest getQuest(String id) {
+        return quests.get(id);
+    }
+
+    public Map<String, Shop> getShops() {
+        return shops;
+    }
+
+    public Shop getShop(String id) {
+        return shops.get(id);
     }
 }

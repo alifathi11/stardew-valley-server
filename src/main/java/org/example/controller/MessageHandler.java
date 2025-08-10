@@ -1,5 +1,4 @@
 package org.example.controller;
-
 import org.example.model.message_center.Message;
 import org.example.model.consts.Type;
 
@@ -11,6 +10,9 @@ public class MessageHandler {
     private static final RelationController relationController = new RelationController();
     private static final ProfileController profileController = new ProfileController();
     private static final RadioController radioController = new RadioController();
+    private static final MapController mapController = new MapController();
+    private static final VoteController voteController = new VoteController();
+    private static final ShopController shopController = new ShopController();
 
     public static Message handle(Message request) {
         switch (request.getType()) {
@@ -60,6 +62,39 @@ public class MessageHandler {
                 return radioController.startBroadcasting(request);
             case SEND_AUDIO_CHUNK:
                 return radioController.sendAudioChunk(request);
+            case RADIO_LIST:
+                return radioController.radioList(request);
+            case CHANGE_TILE:
+                return mapController.changeTile(request);
+            case LOBBY_LIST:
+                return lobbyController.lobbyList(request);
+            case PLAYER_LIST:
+                return lobbyController.playerList(request);
+            case START_VOTE_FIRE:
+                return voteController.startVoteFire(request);
+            case START_VOTE_FORCE_TERMINATE:
+                return voteController.startVoteForceTerminate(request);
+            case VOTE_FIRE:
+                return voteController.voteFire(request);
+            case VOTE_FORCE_TERMINATE:
+                return voteController.voteForceTerminate(request);
+            case MEET_NPC:
+                return relationController.meetNPC(request);
+            case GET_QUEST:
+                return relationController.getQuest(request);
+            case COMPLETE_QUEST:
+                return relationController.completeQuest(request);
+            case GIFT_NPC:
+                return relationController.giftNPC(request);
+            case QUEST_LIST:
+                return relationController.questList(request);
+            case NPC_RELATION_LIST:
+                return relationController.npcRelationList(request);
+            case SHOP_ITEM_LIST:
+                return shopController.shopItemList(request);
+            case BUY_ITEM:
+                return shopController.butItem(request);
+
 
             default:
                 return Message.error(Type.ERROR, "Invalid argument");

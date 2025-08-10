@@ -1,5 +1,6 @@
 package org.example.model.lobby_models;
 
+import org.example.global.LobbyManager;
 import org.example.model.consts.Gender;
 import org.example.model.consts.LobbyState;
 import org.example.model.user.User;
@@ -8,7 +9,7 @@ import org.example.network.GameSession;
 import org.example.repository.UserRepository;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 public class Lobby {
     private final String id;
@@ -25,6 +26,8 @@ public class Lobby {
     private GameSession session;
     private Game game;
 
+    private ScheduledFuture<?> deletionTask;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public Lobby(String id,
                  String name,
@@ -45,6 +48,13 @@ public class Lobby {
         this.playerNames = new ConcurrentHashMap<>();
         this.playerGenders = new ConcurrentHashMap<>();
         this.state = LobbyState.WAITING;
+
+        deletionTask = scheduler.schedule(() -> {
+           if (members.size() < 2) {
+                LobbyManager.deleteLobby(this);
+               System.out.println("Lobby " + this.id + " deleted due to inactivity.");
+           }
+        }, 5, TimeUnit.MINUTES);
 
     }
 

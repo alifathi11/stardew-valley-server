@@ -12,14 +12,23 @@ public class RadioManager {
 
     private final Map<String, RadioSession> sessions = new ConcurrentHashMap<>();
     private final Map<String, String> userToSession = new ConcurrentHashMap<>();
+    private Map<String, Object> format;
 
-    public void createSession(String hostId) {
-        sessions.computeIfAbsent(hostId, RadioSession::new);
+    public void createSession(String hostId, Map<String, Object> format) {
+        sessions.putIfAbsent(hostId, new RadioSession(hostId, format));
+
+        // Log
+        System.err.println("host " + hostId + " started broadcasting");
     }
 
     public void createOrUpdateSession(String hostId, AudioChunk chunk) {
-        sessions.computeIfAbsent(hostId, RadioSession::new)
-                .broadcast(chunk);
+        RadioSession session = sessions.get(hostId);
+        if (session == null) {
+            session = new RadioSession(hostId, format);
+            sessions.put(hostId, session);
+        }
+        session.broadcast(chunk);
+
     }
 
     public boolean addListener(String listenerUsername, String sessionId, SocketChannel channel) {
@@ -49,5 +58,13 @@ public class RadioManager {
         userToSession.values().removeIf(s -> s.equals(hostId));
 
         session.clear();
+    }
+
+    public Map<String, String> getUserToSession() {
+        return userToSession;
+    }
+
+    public Map<String, RadioSession> getSessions() {
+        return sessions;
     }
 }

@@ -258,5 +258,50 @@ public class LobbyController {
         }
     }
 
+    public Message lobbyList(Message message) {
+        String username = (String) message.getFromPayload("username");
+        if (username == null) {
+            return Message.error(Type.PLAYER_LIST, "username not found.");
+        }
+
+        Collection<Lobby> lobbies = LobbyManager.getLobbies();
+
+        List<Map<String, Object>> payloads = new ArrayList<>();
+
+        for (Lobby lobby : lobbies) {
+            if (!lobby.isVisible()) continue;
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("lobby_name", lobby.getName());
+            payload.put("host", lobby.getHostUsername());
+            payload.put("is_private", lobby.isPrivate());
+            payload.put("members", new ArrayList<>(lobby.getMembers()));
+
+            payloads.add(payload);
+        }
+
+        return new Message(Type.LOBBY_LIST, Map.of("lobby_list", payloads));
+    }
+
+    public Message playerList(Message message) {
+        String username = (String) message.getFromPayload("username");
+        if (username == null) {
+            return Message.error(Type.PLAYER_LIST, "username not found.");
+        }
+
+        List<Map<String, Object>> payloads = new ArrayList<>();
+
+        Collection<String> players = GameServer.getClientHandler().getUsernameToConnection().keySet();
+        for (String player : players) {
+            Map<String, Object> payload = new HashMap<>();
+
+            payload.put("username", player);
+            payload.put("lobby", LobbyManager.getLobbyByUser(player) == null ? "" : LobbyManager.getLobbyByUser(player));
+
+            payloads.add(payload);
+        }
+
+        return new Message(Type.PLAYER_LIST, Map.of("players", payloads));
+    }
 
 }

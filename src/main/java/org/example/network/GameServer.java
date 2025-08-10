@@ -6,16 +6,13 @@ import org.example.model.consts.Type;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.CancelledKeyException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 public class GameServer {
 
-    private static final int PORT = 12346;
+    private static final int PORT = 12345;
     private static final int TICK_RATE_MS = 100;
 
     private static boolean running = true;

@@ -33,7 +33,7 @@ public class QuestLoader {
                         ItemIDs award = awardText.isEmpty() ? null : ItemIDs.valueOf(awardText);
                         int awardAmount = questNode.get("awardAmount").asInt();
 
-                        questList.add(new Quest(npcName, itemId, itemAmount, award, awardAmount));
+                        questList.add(new Quest(UUID.randomUUID().toString(), npcName, itemId, itemAmount, award, awardAmount));
                     } catch (IllegalArgumentException | NullPointerException e) {
                         System.err.println("Skipping malformed quest for NPC: " + npcName + " -> " + questNode);
                     }

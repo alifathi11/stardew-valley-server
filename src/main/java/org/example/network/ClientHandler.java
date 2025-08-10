@@ -19,6 +19,7 @@ public class ClientHandler {
     private final Selector selector;
     private final Map<SocketChannel, ClientConnection> channelToConnection = new ConcurrentHashMap<>();
     private final Map<String, ClientConnection> usernameToConnection = new ConcurrentHashMap<>();
+    private final Map<SocketChannel, StringBuilder> readBuffers = new ConcurrentHashMap<>();
     private final BlockingQueue<Message> globalRequestQueue;
 
     public ClientHandler(Selector selector, BlockingQueue<Message> globalRequestQueue) {
@@ -31,6 +32,8 @@ public class ClientHandler {
         clientChannel.configureBlocking(false);
         clientChannel.register(selector, SelectionKey.OP_READ);
         channelToConnection.put(clientChannel, new ClientConnection(clientChannel));
+        readBuffers.put(clientChannel, new StringBuilder());
+
         System.out.println("Accepted connection from " + clientChannel.getRemoteAddress());
     }
 
@@ -39,7 +42,6 @@ public class ClientHandler {
         ByteBuffer buffer = ByteBuffer.allocate(1024);
 
         try {
-
             int bytesRead = channel.read(buffer);
             if (bytesRead == -1) {
                 closeConnection(channel);
@@ -47,16 +49,39 @@ public class ClientHandler {
             }
 
             buffer.flip();
-            String line = StandardCharsets.UTF_8.decode(buffer).toString().trim();
-            Message incoming = MessageParser.fromJson(line);
-            incoming.setSource(channel);
+            String incoming = StandardCharsets.UTF_8.decode(buffer).toString();
 
-            globalRequestQueue.add(incoming);
+            // Append to that client’s buffer
+            StringBuilder sb = readBuffers.computeIfAbsent(channel, c -> new StringBuilder());
+            sb.append(incoming);
+
+            // Process complete lines (delimited by newline)
+            int newlineIndex;
+            while ((newlineIndex = sb.indexOf("\n")) != -1) {
+                String rawLine = sb.substring(0, newlineIndex).trim();
+                sb.delete(0, newlineIndex + 1); // remove processed line
+
+                if (!rawLine.isEmpty()) {
+                    System.err.println("Received from " + channel + ": " + rawLine);
+
+                    try {
+                        Message message = MessageParser.fromJson(rawLine);
+                        message.setSource(channel);
+                        globalRequestQueue.add(message);
+                    } catch (Exception e) {
+                        System.err.println("Invalid JSON from " + channel + ": " + rawLine);
+                        e.printStackTrace();
+                        // Optional: don't disconnect yet, maybe skip this message
+                    }
+                }
+            }
 
         } catch (Exception e) {
+            e.printStackTrace();
             closeConnection(channel);
         }
     }
+
 
     public void writeToClient(SelectionKey key) {
         SocketChannel channel = (SocketChannel) key.channel();
@@ -137,6 +162,7 @@ public class ClientHandler {
     public void closeConnection(SocketChannel channel) {
         try {
             System.out.println("Closing connection: " + channel.getRemoteAddress());
+            readBuffers.remove(channel);
             ClientConnection conn = channelToConnection.remove(channel);
             if (conn != null && conn.getUsername() != null) {
                 usernameToConnection.remove(conn.getUsername());

@@ -1,0 +1,58 @@
+[
+  {
+    "shop_name": "blacksmith",
+    "npc_name": "clint",
+    "npc_gender": "MALE",
+    "profession": "BLACK_SMITH",
+    "start_time": 9,
+    "end_time": 14
+  },
+  {
+    "shop_name": "jojamart",
+    "npc_name": "morris",
+    "npc_gender": "MALE",
+    "profession": "FARMER",
+    "start_time": 9,
+    "end_time": 21
+  },
+  {
+    "shop_name": "pierres_shop",
+    "npc_name": "pierre",
+    "npc_gender": "MALE",
+    "profession": "FARMER",
+    "start_time": 9,
+    "end_time": 15
+  },
+  {
+    "shop_name": "carpenters_shop",
+    "npc_name": "robin",
+    "npc_gender": "FEMALE",
+    "profession": "WOOD_SELLER",
+    "start_time": 9,
+    "end_time": 18
+  },
+  {
+    "shop_name": "clinic",
+    "npc_name": "marnie",
+    "npc_gender": "FEMALE",
+    "profession": "RANCHER",
+    "start_time": 9,
+    "end_time": 14
+  },
+  {
+    "shop_name": "fish_shop",
+    "npc_name": "john",
+    "npc_gender": "MALE",
+    "profession": "FISHERMAN",
+    "start_time": 10,
+    "end_time": 20
+  },
+  {
+    "shop_name": "saloon",
+    "npc_name": "gus",
+    "npc_gender": "MALE",
+    "profession": "BARISTA",
+    "start_time": 12,
+    "end_time": 22
+  }
+]
