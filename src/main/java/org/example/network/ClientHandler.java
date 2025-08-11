@@ -2,6 +2,7 @@ package org.example.network;
 
 import org.example.model.message_center.Message;
 import org.example.model.consts.Type;
+import org.example.repository.TokenRepository;
 import org.example.utils.MessageParser;
 
 import java.io.*;
@@ -66,6 +67,16 @@ public class ClientHandler {
 
                     try {
                         Message message = MessageParser.fromJson(rawLine);
+
+                        if (message.getType() != Type.LOGIN && message.getType() != Type.SIGNUP) {
+                            if (!validateToken(message)) {
+                                getClientByChannel(channel).send(
+                                        Message.error(Type.TOKEN_NOT_VALID,
+                                                "authentication failed. please login first.")
+                                );
+                            }
+                        }
+
                         message.setSource(channel);
                         globalRequestQueue.add(message);
                     } catch (Exception e) {
@@ -80,6 +91,22 @@ public class ClientHandler {
             e.printStackTrace();
             closeConnection(channel);
         }
+    }
+
+    private boolean validateToken(Message message) {
+
+        String token = (String) message.getFromPayload("token");
+
+        if (token == null) {
+            return false;
+        }
+
+        Optional<String> userId = TokenRepository.getInstance().getUserId(token);
+        if (userId.isEmpty()) {
+            return false;
+        }
+
+        return true;
     }
 
 

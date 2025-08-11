@@ -15,6 +15,7 @@ public class MessageHandler {
     private static final ShopController shopController = new ShopController();
     private static final NPCRelationController npcRelationController = new NPCRelationController();
     private static final PlayerRelationController playerRelationController = new PlayerRelationController();
+    private static final TradeController tradeController = new TradeController();
 
 
     public static Message handle(Message request) {
@@ -115,7 +116,15 @@ public class MessageHandler {
                 return playerRelationController.responseProposal(request);
             case HUG:
                 return playerRelationController.hug(request);
-
+            case FRIEND_LIST:
+                return playerRelationController.friendList(request);
+            case REQUEST_TRADE:
+                return tradeController.requestTrade(request);
+            case OFFER_TRADE:
+                return tradeController.offerTrade(request);
+            case RESPONSE_TRADE:
+                return tradeController.responseTrade(request);
+                
             default:
                 return Message.error(Type.ERROR, "Invalid argument");
         }
