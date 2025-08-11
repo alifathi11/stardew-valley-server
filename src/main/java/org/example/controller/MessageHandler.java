@@ -13,11 +13,16 @@ public class MessageHandler {
     private static final MapController mapController = new MapController();
     private static final VoteController voteController = new VoteController();
     private static final ShopController shopController = new ShopController();
+    private static final NPCRelationController npcRelationController = new NPCRelationController();
+    private static final PlayerRelationController playerRelationController = new PlayerRelationController();
+
 
     public static Message handle(Message request) {
         switch (request.getType()) {
             case LOGIN:
                 return authController.login(request);
+            case AUTO_LOGIN:
+                return authController.autoLogin(request);
             case SIGNUP:
                 return authController.signup(request);
             case CREATE_LOBBY:
@@ -79,22 +84,37 @@ public class MessageHandler {
             case VOTE_FORCE_TERMINATE:
                 return voteController.voteForceTerminate(request);
             case MEET_NPC:
-                return relationController.meetNPC(request);
+                return npcRelationController.meetNPC(request);
             case GET_QUEST:
-                return relationController.getQuest(request);
+                return npcRelationController.getQuest(request);
             case COMPLETE_QUEST:
-                return relationController.completeQuest(request);
+                return npcRelationController.completeQuest(request);
             case GIFT_NPC:
-                return relationController.giftNPC(request);
+                return npcRelationController.giftNPC(request);
             case QUEST_LIST:
-                return relationController.questList(request);
+                return npcRelationController.questList(request);
             case NPC_RELATION_LIST:
-                return relationController.npcRelationList(request);
+                return npcRelationController.npcRelationList(request);
             case SHOP_ITEM_LIST:
                 return shopController.shopItemList(request);
             case BUY_ITEM:
                 return shopController.butItem(request);
-
+            case SEND_GIFT:
+                return playerRelationController.sendGift(request);
+            case RECEIVED_GIFT_LIST:
+                return playerRelationController.receivedGiftLList(request);
+            case SENT_GIFT_LIST:
+                return playerRelationController.sentGiftList(request);
+            case RATE_GIFT:
+                return playerRelationController.rateGift(request);
+            case GIVE_FLOWER:
+                return playerRelationController.giveFlower(request);
+            case PROPOSE:
+                return playerRelationController.propose(request);
+            case RESPONSE_PROPOSAL:
+                return playerRelationController.responseProposal(request);
+            case HUG:
+                return playerRelationController.hug(request);
 
             default:
                 return Message.error(Type.ERROR, "Invalid argument");

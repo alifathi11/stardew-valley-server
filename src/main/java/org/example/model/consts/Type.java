@@ -4,6 +4,7 @@ public enum Type {
     VOID,
 
     LOGIN,
+    AUTO_LOGIN,
     SIGNUP,
     SUCCESS,
     ERROR,
@@ -72,5 +73,23 @@ public enum Type {
     SHOP_ITEM_LIST,
     BUY_ITEM,
 
+    SEND_GIFT,
+    GIFT,
+    RECEIVED_GIFT_LIST,
+    SENT_GIFT_LIST,
+    RATE_GIFT,
+    RATE,
+    GIVE_FLOWER,
+    FLOWER,
+
+    PROPOSE,
+    MARRIAGE_PROPOSAL,
+    RESPONSE_PROPOSAL,
+    PROPOSAL_ACCEPTED,
+    PROPOSAL_REJECTED,
+    HUG,
+    HUGGING,
+
+    REQUEST_TRADE,
     ;
 }

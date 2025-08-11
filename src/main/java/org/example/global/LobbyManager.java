@@ -170,6 +170,8 @@ public class LobbyManager {
             Map<String, Object> payload = new HashMap<>();
             payload.put("id", npc.getId());
             payload.put("name", npc.getName());
+            payload.put("gender", npc.getGender().name());
+            payload.put("profession", npc.getProfession().name());
             payload.put("pos_x", npc.getPosition().x);
             payload.put("pos_y", npc.getPosition().y);
 
@@ -181,7 +183,9 @@ public class LobbyManager {
             Map<String, Object> payload = new HashMap<>();
             payload.put("id", shop.getId());
             payload.put("shop_name", shop.getShopName());
-            payload.put("npc_name", shop.getOwner().getName());
+            payload.put("npc_id", shop.getOwner().getId());
+            payload.put("start_time", shop.getStartTime());
+            payload.put("end_time", shop.getEndTime());
 
             shopPayload.add(payload);
         }

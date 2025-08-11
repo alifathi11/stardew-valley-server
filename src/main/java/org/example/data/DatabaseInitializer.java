@@ -46,6 +46,15 @@ public class DatabaseInitializer {
                 );
             """);
 
+            // Create persistent token for stay-logged-in
+            stmt.execute("""
+                CREATE TABLE persistent_tokens (
+                    token TEXT PRIMARY KEY,
+                    expires_at TEXT NOT NULL,
+                    user_id TEXT NOT NULL
+                );
+            """);
+
             // Create invitation-token table
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS lobby_invite_tokens (

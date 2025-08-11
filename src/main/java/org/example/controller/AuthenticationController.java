@@ -11,6 +11,7 @@ import org.example.utils.Hasher;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class AuthenticationController {
@@ -37,7 +38,15 @@ public class AuthenticationController {
         SecurityQuestion securityQuestion = new SecurityQuestion(question, answer);
 
         // validation
-        Message validation = Validator.validateSignup(username, email, password);
+        Message validation = Validator.validateSignup(
+                username,
+                name,
+                email,
+                password,
+                gender,
+                securityQuestion
+        );
+
         if (((String) validation.getFromPayload("status")).equalsIgnoreCase("error")) {
             return validation;
         }
@@ -69,6 +78,7 @@ public class AuthenticationController {
 
         String username = (String) message.getFromPayload("username");
         String password = (String) message.getFromPayload("password");
+        boolean stayLoggedIn = (boolean) message.getFromPayload("stay-logged-in");
 
         if (username == null || password == null)
             return Message.error(Type.LOGIN, "Username and password are required.");
@@ -81,6 +91,10 @@ public class AuthenticationController {
         if (!Hasher.validate(password, user.getPasswordHash()))
             return Message.error(Type.LOGIN, "Invalid password.");
 
+        if (stayLoggedIn) {
+            TokenRepository.getInstance().generatePersistentToken(username);
+        }
+
         String token = tokenRepository.generateToken(username);
 
         Map<String, Object> payload = new HashMap<>();
@@ -92,6 +106,43 @@ public class AuthenticationController {
         payload.put("token", token);
 
         return new Message(Type.LOGIN, payload);
+    }
+
+    public Message autoLogin(Message message) {
+        String persistentToken = (String) message.getFromPayload("persistent_token");
+
+        if (persistentToken == null) {
+            return Message.error(Type.AUTO_LOGIN, "token not found.");
+        }
+
+        Optional<String> usernameOpt = TokenRepository.getInstance().getUserIdFromPersistentToken(persistentToken);
+
+        if (usernameOpt.isPresent()) {
+
+            String username = usernameOpt.get();
+
+            String token = tokenRepository.generateToken(username);
+            Optional<User> userOpt = UserRepository.getInstance().findByUsername(username);
+
+            if (userOpt.isEmpty()) {
+                return Message.error(Type.AUTO_LOGIN, "user not found.");
+            }
+
+            User user = userOpt.get();
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("status", "success");
+            payload.put("content", "Logged in successfully.");
+            payload.put("username", username);
+            payload.put("name", user.getName());
+            payload.put("gender", user.getGender().name());
+            payload.put("token", token);
+
+            return new Message(Type.LOGIN, payload);
+
+        } else {
+            return Message.error(Type.AUTO_LOGIN, "user not found.");
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package org.example.model.game_models;
 import org.example.model.generic.Pair;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerRelation extends Pair<Player, Player> {
 
@@ -10,9 +11,12 @@ public class PlayerRelation extends Pair<Player, Player> {
     private boolean areMarried;
     private ArrayList<String> talkHistory;
     private int friendshipLevel;
-    private ArrayList<Gift> gifs;
+    private final List<Gift> gifts;
+    private List<Trade> trades;
+
     private boolean isFlowerGifted;
     private int numberOfHugsInDay;
+
 
     public PlayerRelation(Player player1, Player player2) {
         super(player1, player2);
@@ -22,7 +26,8 @@ public class PlayerRelation extends Pair<Player, Player> {
         this.areMarried = false;
         this.friendshipLevel = 0;
         this.isFlowerGifted = false;
-        this.gifs = new ArrayList<>();
+        this.gifts = new ArrayList<>();
+        this.trades = new ArrayList<>();
         this.numberOfHugsInDay = 0;
     }
 
@@ -48,5 +53,41 @@ public class PlayerRelation extends Pair<Player, Player> {
         } else {
             friendshipLevel = 4;
         }
+    }
+
+    public int getFriendshipLevel() {
+        return friendshipLevel;
+    }
+
+    public boolean AreMarried() {
+        return areMarried;
+    }
+
+    public int getXp() {
+        return xp;
+    }
+
+    public void addGift(Gift gift) {
+        gifts.add(gift);
+    }
+
+    public boolean areMarried() {
+        return areMarried;
+    }
+
+    public void setAreMarried(boolean areMarried) {
+        this.areMarried = areMarried;
+    }
+
+    public int getNumberOfHugsInDay() {
+        return numberOfHugsInDay;
+    }
+
+    public void incrementNumberOfHugsInDay() {
+        numberOfHugsInDay++;
+    }
+
+    public List<Trade> getTrades() {
+        return trades;
     }
 }

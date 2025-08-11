@@ -57,7 +57,7 @@ public class ShopController {
         int amount = (int) message.getFromPayload("amount");
 
         if (username == null || shopId == null || itemId == null) {
-            return Message.error(Type.BUY_ITEM, "message format is not valid.")
+            return Message.error(Type.BUY_ITEM, "message format is not valid.");
         }
 
         ClientConnection client = GameServer.getClientHandler().getClientByUsername(username);
@@ -83,6 +83,8 @@ public class ShopController {
         if (shop.getStock(itemId) < amount) {
             return Message.error(Type.BUY_ITEM, "not enough stock.");
         }
+
+        // TODO: check price and wallet
 
         boolean result = shop.buy(itemId, amount);
         if (!result) {

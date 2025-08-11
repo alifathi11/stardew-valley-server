@@ -596,6 +596,17 @@ public class Game {
         return null;
     }
 
+    public PlayerRelation getPlayerRelation(Player p1, Player p2) {
+        for (PlayerRelation relation : playerRelations) {
+            if ((p1 == relation.getFirst() && p2 == relation.getSecond())
+                || (p1 == relation.getSecond() && p2 == relation.getFirst())) {
+                return relation;
+            }
+        }
+
+        return null;
+    }
+
     public Quest getQuest(String id) {
         return quests.get(id);
     }

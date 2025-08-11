@@ -36,6 +36,7 @@
     "npc_name": "marnie",
     "npc_gender": "FEMALE",
     "profession": "RANCHER",
+
     "start_time": 9,
     "end_time": 14
   },
