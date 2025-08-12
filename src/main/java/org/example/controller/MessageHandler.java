@@ -124,7 +124,7 @@ public class MessageHandler {
                 return tradeController.offerTrade(request);
             case RESPONSE_TRADE:
                 return tradeController.responseTrade(request);
-                
+
             default:
                 return Message.error(Type.ERROR, "Invalid argument");
         }
