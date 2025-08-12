@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import ch.qos.logback.core.net.server.Client;
 import org.example.model.consts.Gender;
 import org.example.model.consts.ItemIDs;
 import org.example.model.consts.Type;
@@ -9,6 +10,7 @@ import org.example.network.ClientConnection;
 import org.example.network.GameServer;
 import org.example.network.GameSession;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class PlayerRelationController {
@@ -73,6 +75,9 @@ public class PlayerRelationController {
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");
         payload.put("content", "You have successfully sent the gift to " + targetUsername);
+        payload.put("to_user", targetUsername);
+        payload.put("item_id", itemId);
+        payload.put("amount", amount);
         payload.put("gift_id", gift.getId());
 
         return new Message(Type.SEND_GIFT, payload);
@@ -124,22 +129,22 @@ public class PlayerRelationController {
         String username = (String) message.getFromPayload("username");
 
         if (username == null) {
-            return Message.error(Type.RECEIVED_GIFT_LIST, "message format in not valid.");
+            return Message.error(Type.SENT_GIFT_LIST, "message format in not valid.");
         }
 
         ClientConnection client = GameServer.getClientHandler().getClientByUsername(username);
         if (client == null) {
-            return Message.error(Type.RECEIVED_GIFT_LIST, "client doesn't exist.");
+            return Message.error(Type.SENT_GIFT_LIST, "client doesn't exist.");
         }
 
         GameSession session = client.getGameSession();
         if (session == null) {
-            return Message.error(Type.RECEIVED_GIFT_LIST, "session doesn't exist.");
+            return Message.error(Type.SENT_GIFT_LIST, "session doesn't exist.");
         }
 
         Game game = session.getGame();
         if (game == null) {
-            return Message.error(Type.RECEIVED_GIFT_LIST, "game doesn't exist.");
+            return Message.error(Type.SENT_GIFT_LIST, "game doesn't exist.");
         }
         Player player = game.getPlayer(username);
 
@@ -320,7 +325,11 @@ public class PlayerRelationController {
         )));
 
 
-        return Message.success(Type.PROPOSE, "you have successfully proposed " + targetUsername);
+        return new Message(Type.PROPOSE, Map.of(
+                "status", "success",
+                "to_user", targetUsername,
+                "proposal_id", proposal.getId()
+        ));
     }
 
     public Message responseProposal(Message message) {
@@ -448,5 +457,54 @@ public class PlayerRelationController {
         )));
 
         return Message.success(Type.VOID, "you are hugging " + targetUsername);
+    }
+
+    public Message friendList(Message message) {
+        String username = (String) message.getFromPayload("username");
+
+        if (username == null) {
+            return Message.error(Type.FRIEND_LIST, "username not found.");
+        }
+
+        ClientConnection client = GameServer.getClientHandler().getClientByUsername(username);
+        if (client == null) {
+            return Message.error(Type.FRIEND_LIST, "client doesn't exist.");
+        }
+
+        GameSession session = client.getGameSession();
+        if (session == null) {
+            return Message.error(Type.FRIEND_LIST, "session doesn't exist.");
+        }
+
+        Game game = session.getGame();
+        if (game == null) {
+            return Message.error(Type.FRIEND_LIST, "game doesn't exist.");
+        }
+
+        Player player = game.getPlayer(username);
+        if (player == null) {
+            return Message.error(Type.FRIEND_LIST, "player doesn't exist.");
+        }
+
+        List<Player> players = game.getPlayers();
+
+        List<Map<String, Object>> payloads = new ArrayList<>();
+
+        for (Player otherPlayer : players) {
+            if (otherPlayer == player) continue;
+
+            Map<String, Object> payload = new HashMap<>();
+
+            PlayerRelation relation = game.getPlayerRelation(player, otherPlayer);
+
+            payload.put("player_username", otherPlayer.getUsername());
+            payload.put("xp", relation.getXp());
+            payload.put("level", relation.getFriendshipLevel());
+            payload.put("are_married", relation.areMarried());
+
+            payloads.add(payload);
+        }
+
+        return new Message(Type.FRIEND_LIST, Map.of("friend_list", payloads));
     }
 }

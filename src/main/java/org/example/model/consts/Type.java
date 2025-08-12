@@ -5,6 +5,7 @@ public enum Type {
 
     LOGIN,
     AUTO_LOGIN,
+    TOKEN_NOT_VALID,
     SIGNUP,
     SUCCESS,
     ERROR,
@@ -81,7 +82,7 @@ public enum Type {
     RATE,
     GIVE_FLOWER,
     FLOWER,
-
+    FRIEND_LIST,
     PROPOSE,
     MARRIAGE_PROPOSAL,
     RESPONSE_PROPOSAL,
@@ -90,6 +91,12 @@ public enum Type {
     HUG,
     HUGGING,
 
+    OFFER_TRADE,
     REQUEST_TRADE,
+    TRADE_OFFER,
+    TRADE_REQUEST,
+    RESPONSE_TRADE,
+    TRADE_REJECTED,
+    TRADE_ACCEPTED,
     ;
 }

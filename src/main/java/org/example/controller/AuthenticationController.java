@@ -78,7 +78,7 @@ public class AuthenticationController {
 
         String username = (String) message.getFromPayload("username");
         String password = (String) message.getFromPayload("password");
-        boolean stayLoggedIn = (boolean) message.getFromPayload("stay-logged-in");
+        boolean stayLoggedIn = (boolean) message.getFromPayload("stay_logged_in");
 
         if (username == null || password == null)
             return Message.error(Type.LOGIN, "Username and password are required.");
@@ -91,8 +91,9 @@ public class AuthenticationController {
         if (!Hasher.validate(password, user.getPasswordHash()))
             return Message.error(Type.LOGIN, "Invalid password.");
 
+        String persistentToken = "";
         if (stayLoggedIn) {
-            TokenRepository.getInstance().generatePersistentToken(username);
+            persistentToken = TokenRepository.getInstance().generatePersistentToken(username);
         }
 
         String token = tokenRepository.generateToken(username);
@@ -103,6 +104,7 @@ public class AuthenticationController {
         payload.put("username", username);
         payload.put("name", user.getName());
         payload.put("gender", user.getGender().name());
+        payload.put("persistent_token", persistentToken);
         payload.put("token", token);
 
         return new Message(Type.LOGIN, payload);
