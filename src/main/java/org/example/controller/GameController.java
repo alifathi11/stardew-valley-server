@@ -118,4 +118,34 @@ public class GameController {
         return Message.success(Type.VOID, "position has been updated successfully.");
     }
 
+    public Message animalMove(Message message) {
+        String username = (String) message.getFromPayload("username");
+        String animalId = (String) message.getFromPayload("id");
+        double posX = (double) message.getFromPayload("pos_x");
+        double posY = (double) message.getFromPayload("pos_y");
+
+        ClientConnection client = GameServer.getClientHandler().getClientByUsername(username);
+        if (client == null) {
+            return Message.error(Type.VOID, "client doesn't exist.");
+        }
+
+        GameSession session = client.getGameSession();
+        if (session == null) {
+            return Message.error(Type.VOID, "session doesn't exist.");
+        }
+
+        Game game = session.getGame();
+        if (game == null) {
+            return Message.error(Type.VOID, "game doesn't exist.");
+        }
+
+
+        session.broadcast(message, username);
+
+        // TODO: update animal position
+        // TODO: broadcast animal position
+
+        return Message.success(Type.VOID, "position has been updated successfully.");
+    }
+
 }

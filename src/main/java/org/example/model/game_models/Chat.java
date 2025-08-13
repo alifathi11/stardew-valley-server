@@ -4,7 +4,9 @@ import org.example.model.message_center.Message;
 import org.example.model.generic.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Chat extends Pair<Player, Player> {
 
@@ -20,7 +22,13 @@ public class Chat extends Pair<Player, Player> {
         this.messages.add(message);
     }
 
-    public List<Message> getMessages() {
-        return messages;
+    public List<Map<String, Object>> getMessages() {
+        List<Map<String, Object>> payloads = new ArrayList<>();
+
+        for (Message message : messages) {
+            payloads.add(message.getPayload());
+        }
+
+        return payloads;
     }
 }

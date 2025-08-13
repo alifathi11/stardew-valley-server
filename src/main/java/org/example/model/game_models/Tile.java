@@ -20,7 +20,7 @@ public class Tile {
         this.itemId = itemId;
     }
 
-    public ItemIDs getId() {
+    public ItemIDs getItemId() {
         return itemId;
     }
 

@@ -7,7 +7,7 @@ public class MessageHandler {
     private static final AuthenticationController authController = new AuthenticationController();
     private static final LobbyController lobbyController = new LobbyController();
     private static final GameController gameController = new GameController();
-    private static final RelationController relationController = new RelationController();
+    private static final ChatController chatController = new ChatController();
     private static final ProfileController profileController = new ProfileController();
     private static final RadioController radioController = new RadioController();
     private static final MapController mapController = new MapController();
@@ -44,12 +44,14 @@ public class MessageHandler {
                 return lobbyController.leaveLobby(request);
             case PLAYER_MOVE:
                 return gameController.playerMove(request);
+            case ANIMAL_MOVE:
+                return gameController.animalMove(request);
             case REACTION:
-                return relationController.showReaction(request);
+                return playerRelationController.showReaction(request);
             case SEND_MESSAGE:
-                return relationController.sendMessage(request);
+                return chatController.sendMessage(request);
             case SHOW_CHAT:
-                return relationController.showChat(request);
+                return chatController.showChat(request);
             case CHANGE_USERNAME:
                 return profileController.changeUsername(request);
             case CHANGE_EMAIL:
@@ -126,6 +128,10 @@ public class MessageHandler {
                 return tradeController.offerTrade(request);
             case RESPONSE_TRADE:
                 return tradeController.responseTrade(request);
+            case SEND_PUBLIC_MESSAGE:
+                return chatController.sendPublicMessage(request);
+            case SHOW_PUBLIC_CHAT:
+                return chatController.showPublicChat(request);
 
             default:
                 return Message.error(Type.ERROR, "Invalid argument");

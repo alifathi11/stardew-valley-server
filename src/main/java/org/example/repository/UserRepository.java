@@ -107,6 +107,7 @@ public class UserRepository {
         String update = "UPDATE users SET username = ?, name = ?, email = ?, password_hash = ?, gender = ?, " +
                 "security_question = ?, is_in_any_game = ?, score = ?, avatar_path = ? WHERE id = ?";
 
+
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(update)) {
 

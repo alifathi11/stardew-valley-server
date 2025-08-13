@@ -1,7 +1,6 @@
 package org.example.model.game_models;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.ApplicationAdapter;
+
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
@@ -18,6 +17,7 @@ import org.example.network.GameServer;
 import org.example.model.game_models.PlayerAbilities.Ability;
 import org.example.network.GameSession;
 import org.example.radio.RadioManager;
+import org.springframework.context.MessageSource;
 
 
 import java.io.File;
@@ -47,13 +47,13 @@ public class Game {
     // Player
     private Map<Player, PlayerMap> playerToPlayerMap;
     private List<Chat> chats;
+    private List<Message> publicChat;
     private List<Player> players;
 
     // NPC
     private List<NPC> npcs;
     private Map<String, List<Quest>> questByNpc;
     private final Map<String, Quest> quests;
-
 
     // Relation
     private final List<NPCRelation> npcRelations;
@@ -180,7 +180,21 @@ public class Game {
         chat.addMessage(message);
     }
 
-    public List<Message> getMessage(String user1, String user2) {
+    public void sendPublicMessage(String fromUser, Message message) {
+        publicChat.add(message);
+    }
+
+    public List<Map<String, Object>> getPublicChat() {
+        List<Map<String, Object>> payloads = new ArrayList<>();
+
+        for (Message message : publicChat) {
+            payloads.add(message.getPayload());
+        }
+
+        return payloads;
+    }
+
+    public List<Map<String, Object>> getMessage(String user1, String user2) {
         return getChat(user1, user2).getMessages();
     }
 
@@ -635,6 +649,14 @@ public class Game {
         }
 
         return null;
+    }
+
+    public List<NPCRelation> getNpcRelations() {
+        return npcRelations;
+    }
+
+    public Map<String, String> getPlayerNames() {
+        return playerNames;
     }
 
     public Quest getQuest(String id) {

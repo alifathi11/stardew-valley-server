@@ -174,4 +174,8 @@ public class NPC {
     public boolean isShopNPC() {
         return shopNPC;
     }
+
+    public List<ItemIDs> getFavoriteItems() {
+        return favoriteItems;
+    }
 }
