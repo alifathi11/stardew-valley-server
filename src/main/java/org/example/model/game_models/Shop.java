@@ -13,6 +13,7 @@ public class Shop {
     private int startTime;
     private int endTime;
     private Map<ItemIDs, Integer> shopItems;
+    private Map<ItemIDs, Integer> stocks;
 
     public Shop(String id,
                 String shopName,
@@ -26,6 +27,7 @@ public class Shop {
         this.startTime = startTime;
         this.endTime = endTime;
         this.shopItems = new HashMap<>();
+        this.stocks = new HashMap<>();
     }
 
     public String getShopName() {
@@ -54,6 +56,9 @@ public class Shop {
 
     public void setShopItems(Map<ItemIDs, Integer> shopItems) {
         this.shopItems = shopItems;
+
+        // Initialize stocks
+        this.stocks = shopItems;
     }
 
     public int getStock(String itemId) {
@@ -71,5 +76,20 @@ public class Shop {
 
         shopItems.put(id, shopItems.get(id) - amount);
         return true;
+    }
+
+    public Map<ItemIDs, Integer> getStocks() {
+        return stocks;
+    }
+
+    public int getStock(ItemIDs item) {
+        return stocks.get(item);
+    }
+
+    public void resetDailyLimits() {
+        for (var entry : shopItems.entrySet()) {
+            ItemIDs item = entry.getKey();
+            shopItems.put(item, stocks.get(item));
+        }
     }
 }

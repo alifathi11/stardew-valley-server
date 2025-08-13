@@ -15,6 +15,19 @@ import java.util.*;
 
 public class PlayerRelationController {
 
+    public Message showReaction(Message message) {
+        String username = (String) message.getFromPayload("username");
+        ClientConnection client = GameServer.getClientHandler().getClientByUsername(username);
+        if (client != null) {
+            GameSession session = client.getGameSession();
+            if (session != null) {
+                session.broadcast(message, username);
+            }
+        }
+
+        return Message.success(Type.VOID, "reaction has been sent successfully.");
+    }
+
     public Message sendGift(Message message) {
         String username = (String) message.getFromPayload("username");
         String targetUsername = (String) message.getFromPayload("target_username");

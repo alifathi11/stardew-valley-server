@@ -72,6 +72,10 @@ public class ProfileController {
             return Message.error(Type.CHANGE_PASSWORD, "new password is not valid.");
         }
 
+        if (Validator.isPasswordWeak(newPassword)) {
+            return Message.error(Type.CHANGE_PASSWORD, Validator.checkWeakness(newPassword));
+        }
+
         user.setPasswordHash(Hasher.hash(newPassword));
         boolean result = UserRepository.getInstance().updateUser(user);
         if (!result) {
@@ -178,5 +182,26 @@ public class ProfileController {
         payload.put("new_gender", gender.name());
 
         return new Message(Type.CHANGE_GENDER, payload);
+    }
+
+    public Message changeAvatar(Message message) {
+        String username = (String) message.getFromPayload("username");
+        String avatarPath = (String) message.getFromPayload("avatar_path");
+
+        Optional<User> userOpt = UserRepository.getInstance().findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return Message.error(Type.CHANGE_AVATAR, "user doesn't exist.");
+        }
+
+        User user = userOpt.get();
+        user.setAvatarPath(avatarPath);
+        UserRepository.getInstance().updateUser(user);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("status", "success");
+        payload.put("new_avatar_path", avatarPath);
+
+        return new Message(Type.CHANGE_AVATAR, payload);
+
     }
 }

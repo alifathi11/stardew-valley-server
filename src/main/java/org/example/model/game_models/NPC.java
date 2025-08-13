@@ -165,4 +165,8 @@ public class NPC {
     public int getDaysToLastQuest() {
         return daysToLastQuest;
     }
+
+    public List<ItemIDs> getFavoriteItems() {
+        return favoriteItems;
+    }
 }

@@ -17,6 +17,7 @@ public class User {
     private SecurityQuestion securityQuestion;
     private boolean isInAnyGame;
     private int score;
+    private String avatarPath;
 
     public User(String id,
                 String username,
@@ -26,7 +27,8 @@ public class User {
                 Gender gender,
                 SecurityQuestion securityQuestion,
                 boolean isInAnyGame,
-                int score) {
+                int score,
+                String avatarPath) {
 
         this.id = id;
         this.username = username;
@@ -37,6 +39,7 @@ public class User {
         this.securityQuestion = securityQuestion;
         this.isInAnyGame = isInAnyGame;
         this.score = score;
+        this.avatarPath = avatarPath;
     }
 
     public static User fromResultSet(ResultSet rs) {
@@ -51,7 +54,8 @@ public class User {
                 Gender.fromString(rs.getString("gender")),
                 SecurityQuestion.fromString(rs.getString("security_question")),
                 rs.getBoolean("is_in_any_game"),
-                rs.getInt("score")
+                rs.getInt("score"),
+                rs.getString("avatar_path")
             );
         } catch (SQLException e) {
             e.printStackTrace();
@@ -129,5 +133,13 @@ public class User {
 
     public void setInAnyGame(boolean inAnyGame) {
         isInAnyGame = inAnyGame;
+    }
+
+    public String getAvatarPath() {
+        return avatarPath;
+    }
+
+    public void setAvatarPath(String avatarPath) {
+        this.avatarPath = avatarPath;
     }
 }

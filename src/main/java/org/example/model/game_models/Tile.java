@@ -5,7 +5,7 @@ import org.example.model.consts.ItemIDs;
 
 public class Tile {
     private final Vector2 position;
-    private ItemIDs itemId; // Temp
+    private ItemIDs itemId;
 
     public Tile(Vector2 position) {
         this.position = position;
@@ -19,7 +19,7 @@ public class Tile {
         this.itemId = itemId;
     }
 
-    public ItemIDs getId() {
+    public ItemIDs getItemId() {
         return itemId;
     }
 }

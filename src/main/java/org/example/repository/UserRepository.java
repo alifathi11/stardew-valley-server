@@ -59,8 +59,8 @@ public class UserRepository {
 
     public void save(User user) {
         String insert = """
-            INSERT INTO users (id, username, name, email, password_hash, gender, security_question, is_in_any_game, score)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO users (id, username, name, email, password_hash, gender, security_question, is_in_any_game, score, avatar_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
         try (Connection conn = dataSource.getConnection();
@@ -76,6 +76,7 @@ public class UserRepository {
             stmt.setString(7, securityQuestion);
             stmt.setBoolean(8, user.isInAnyGame());
             stmt.setInt(9, user.getScore());
+            stmt.setString(10, user.getAvatarPath());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -104,7 +105,7 @@ public class UserRepository {
 
     public boolean updateUser(User user) {
         String update = "UPDATE users SET username = ?, name = ?, email = ?, password_hash = ?, gender = ?, " +
-                "security_question = ?, is_in_any_game = ?, score = ? WHERE id = ?";
+                "security_question = ?, is_in_any_game = ?, score = ? avatar_path = ? WHERE id = ?";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(update)) {
@@ -119,8 +120,9 @@ public class UserRepository {
             stmt.setString(6, securityQuestion);
             stmt.setBoolean(7, user.isInAnyGame());
             stmt.setInt(8, user.getScore());
+            stmt.setString(9, user.getAvatarPath());
 
-            stmt.setString(9, user.getId());
+            stmt.setString(10, user.getId());
 
             int affectedRows = stmt.executeUpdate();
             return affectedRows > 0;
