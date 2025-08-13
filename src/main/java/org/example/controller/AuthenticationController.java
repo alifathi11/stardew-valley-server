@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.data.AvatarLoader;
 import org.example.model.consts.Gender;
 import org.example.model.consts.Type;
 import org.example.model.message_center.Message;
@@ -9,10 +10,7 @@ import org.example.repository.TokenRepository;
 import org.example.repository.UserRepository;
 import org.example.utils.Hasher;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class AuthenticationController {
 
@@ -37,7 +35,7 @@ public class AuthenticationController {
         String answer = (String) message.getFromPayload("answer");
         SecurityQuestion securityQuestion = new SecurityQuestion(question, answer);
 
-        // validation
+        // Validation
         Message validation = Validator.validateSignup(
                 username,
                 name,
@@ -47,11 +45,16 @@ public class AuthenticationController {
                 securityQuestion
         );
 
-        if (((String) validation.getFromPayload("status")).equalsIgnoreCase("error")) {
-            return validation;
-        }
+//        if (((String) validation.getFromPayload("status")).equalsIgnoreCase("error")) {
+//            return validation;
+//        }
 
-        // add to database
+        // Choose avatar
+        Random random = new Random();
+        List<String>avatarPaths = Arrays.asList(AvatarLoader.getAvatars());
+        String avatarPath = avatarPaths.get(random.nextInt(avatarPaths.size()));
+
+        // Add to database
         String passwordHash = Hasher.hash(password);
         userRepository.save(new User(UUID.randomUUID().toString(),
                                      username,
@@ -61,9 +64,10 @@ public class AuthenticationController {
                                      gender,
                                      securityQuestion,
                                      false,
-                                     0));
+                                     0,
+                                     avatarPath));
 
-        // build response
+        // Build response
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "success");
         payload.put("content", "You have singed up successfully.");
@@ -78,7 +82,7 @@ public class AuthenticationController {
 
         String username = (String) message.getFromPayload("username");
         String password = (String) message.getFromPayload("password");
-        boolean stayLoggedIn = (boolean) message.getFromPayload("stay_logged_in");
+        boolean stayLoggedIn = (Boolean) message.getFromPayload("stay_logged_in");
 
         if (username == null || password == null)
             return Message.error(Type.LOGIN, "Username and password are required.");
@@ -102,8 +106,10 @@ public class AuthenticationController {
         payload.put("status", "success");
         payload.put("content", "Logged in successfully.");
         payload.put("username", username);
+        payload.put("email", user.getEmail());
         payload.put("name", user.getName());
         payload.put("gender", user.getGender().name());
+        payload.put("avatar_path", user.getAvatarPath());
         payload.put("persistent_token", persistentToken);
         payload.put("token", token);
 
@@ -136,8 +142,10 @@ public class AuthenticationController {
             payload.put("status", "success");
             payload.put("content", "Logged in successfully.");
             payload.put("username", username);
+            payload.put("email", user.getEmail());
             payload.put("name", user.getName());
             payload.put("gender", user.getGender().name());
+            payload.put("avatar_path", user.getAvatarPath());
             payload.put("token", token);
 
             return new Message(Type.LOGIN, payload);

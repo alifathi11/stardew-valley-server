@@ -12,7 +12,7 @@ import static org.example.controller.NPC.NPCUtils.*;
 public class NPCController {
     private final NPC npc;
     private final NPCAnimationManager animationManager;
-    private final CollisionController  collisionController;
+//    private final CollisionController  collisionController;
 
     private final float proximityDistance = 48f;
 
@@ -27,7 +27,7 @@ public class NPCController {
     public NPCController(NPC npc, NPCAnimationManager animationManager) {
         this.npc = npc;
         this.animationManager = animationManager;
-        this.collisionController = CollisionController.getInstance();
+//        this.collisionController = CollisionController.getInstance();
         this.movementBounds = new Rectangle(950, 990, 1200, 1200); // TODO: hard coded for now
     }
 
@@ -91,15 +91,15 @@ public class NPCController {
         }
 
         // Don't update npc state if the movement would cause collision
-        if (collisionController.canNPCTryMove(futureRect, player.getCollisionRect(), npc)) {
-            npc.setPosition(newPos); // This also updates the internal collisionRect
-            animationManager.changeState(NPCState.WALKING, walkingDirection);
-        } else {
-            // Pick a new direction on collision
-            walkingDirection = getRandomDirectionExcept(walkingDirection);
-            behaviorTimer = 0;
-            isIdle = true;
-        }
+//        if (collisionController.canNPCTryMove(futureRect, player.getCollisionRect(), npc)) {
+//            npc.setPosition(newPos); // This also updates the internal collisionRect
+//            animationManager.changeState(NPCState.WALKING, walkingDirection);
+//        } else {
+//            // Pick a new direction on collision
+//            walkingDirection = getRandomDirectionExcept(walkingDirection);
+//            behaviorTimer = 0;
+//            isIdle = true;
+//        }
 
     }
 

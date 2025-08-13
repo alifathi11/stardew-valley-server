@@ -33,10 +33,10 @@ public class GameController {
         if (!lobby.getHostUsername().equalsIgnoreCase(username)) {
             return Message.error(Type.CREATE_GAME, "Only host can start the game.");
         }
-
-        if (lobby.getMembers().size() < 2) {
-            return Message.error(Type.CREATE_GAME, "Lobby must have at least 2 members to start the game.");
-        }
+//
+//        if (lobby.getMembers().size() < 2) {
+//            return Message.error(Type.CREATE_GAME, "Lobby must have at least 2 members to start the game.");
+//        }
 
         // Create game session
         GameSession session = new GameSession(UUID.randomUUID().toString());

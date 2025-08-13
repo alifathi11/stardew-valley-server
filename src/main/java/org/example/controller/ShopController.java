@@ -9,7 +9,9 @@ import org.example.network.GameServer;
 import org.example.network.GameSession;
 import org.hibernate.usertype.BaseUserTypeSupport;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ShopController {
@@ -43,9 +45,14 @@ public class ShopController {
 
         var items = shop.getShopItems();
 
+        Map<String, Object> itemPayload = new HashMap<>();
+        for (var item : items.entrySet()) {
+            itemPayload.put(item.getKey().name(), item.getValue());
+        }
+
         Map<String, Object> payload = new HashMap<>();
         payload.put("shop_id", shopId);
-        payload.put("items", items);
+        payload.put("items", itemPayload);
 
         return new Message(Type.SHOP_ITEM_LIST, payload);
     }

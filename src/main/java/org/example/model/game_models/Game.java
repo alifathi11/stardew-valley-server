@@ -1,20 +1,24 @@
 package org.example.model.game_models;
 
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
-import org.example.controller.NPC.CollisionController;
+//import org.example.controller.NPC.CollisionController;
 import org.example.data.*;
 import org.example.model.consts.Gender;
 import org.example.model.consts.MapSize;
 import org.example.model.consts.Type;
 import org.example.model.lobby_models.Lobby;
 import org.example.model.message_center.Message;
+import org.example.model.utils.TiledJsonReader;
 import org.example.network.ClientConnection;
 import org.example.network.GameServer;
 import org.example.model.game_models.PlayerAbilities.Ability;
 import org.example.network.GameSession;
 import org.example.radio.RadioManager;
+
 
 import java.io.File;
 import java.util.*;
@@ -63,7 +67,7 @@ public class Game {
 
     // Map
     private GameMap map;
-    private TiledMap tiledMap;
+//    private TiledMap tiledMap;
 
     // Radio
     private final RadioManager radioManager;
@@ -113,13 +117,15 @@ public class Game {
         this.npcRelations = new ArrayList<>();
         this.playerRelations = new ArrayList<>();
 
+        // Initialize
+        initialize();
+
         // Executors
         this.leaderboardExecutor = Executors.newScheduledThreadPool(1);
         this.updateNPC = Executors.newScheduledThreadPool(1);
         this.npcBroadcastExecutor = Executors.newScheduledThreadPool(1);
-
         leaderboardExecutor.scheduleAtFixedRate(this::broadcastLeaderboardUpdates, 0, 1000, TimeUnit.MILLISECONDS);
-        updateNPC.scheduleAtFixedRate(this::updateNPC, 0, npcDelta, TimeUnit.MILLISECONDS);
+//        updateNPC.scheduleAtFixedRate(this::updateNPC, 0, npcDelta, TimeUnit.MILLISECONDS);
         npcBroadcastExecutor.scheduleAtFixedRate(this::broadcastNPC, 0, 100, TimeUnit.MILLISECONDS);
 
         // Radio
@@ -128,14 +134,10 @@ public class Game {
         // Vote
         this.voteActive = false;
 
+
         // Collision controller
-        CollisionController.getInstance().init(this);
-
-        // Initialize
-        initialize();
-
+//        CollisionController.init(this);
     }
-
 
 
     private void initialize() {
@@ -184,21 +186,46 @@ public class Game {
 
     private Chat getChat(String fromUser, String toUser) {
         return chats.stream().filter(c -> (c.getFirst().getUsername().equalsIgnoreCase(fromUser) ||
-                                                 c.getFirst().getUsername().equalsIgnoreCase(toUser))  &&
-                                                (c.getSecond().getUsername().equalsIgnoreCase(fromUser) ||
-                                                 c.getSecond().getUsername().equalsIgnoreCase(toUser)))
-                                                .toList().getFirst();
+                        c.getFirst().getUsername().equalsIgnoreCase(toUser)) &&
+                        (c.getSecond().getUsername().equalsIgnoreCase(fromUser) ||
+                                c.getSecond().getUsername().equalsIgnoreCase(toUser)))
+                .toList().getFirst();
     }
 
 
     private void buildMap() {
         GameMap gameMap = new GameMap();
         gameMap.build();
-
         this.map = gameMap;
 
-        this.tiledMap = new TmxMapLoader().load("src/main/assets/Map1.tmx");
+        var mapJson = TiledJsonReader.loadFromResource("/maps/Map1.json");
+        var collisionLayer = mapJson.layers.stream()
+                .filter(l -> "tilelayer".equals(l.type) && "Collisions".equalsIgnoreCase(l.name))
+                .findFirst().orElse(null);
+
+        if (collisionLayer != null) {
+            int w = mapJson.width, h = mapJson.height;
+            int[] gids = collisionLayer.gids; // normalized (flip bits removed)
+            for (int y = 0; y < h; y++) for (int x = 0; x < w; x++) {
+                int gid = gids[y * w + x];
+                boolean blocked = gid != 0;
+                if (blocked) map.getTile(x, y).setBlocked(true);
+            }
+        }
+
+
+        // Example: read spawn points from an object layer named "spawns"
+        var spawns = mapJson.layers.stream()
+                .filter(l -> "objectgroup".equals(l.type) && "spawns".equalsIgnoreCase(l.name))
+                .findFirst().orElse(null);
+        if (spawns != null && spawns.objects != null) {
+            // use spawns.objects.get(i).x / .y as needed
+        }
+
+        // No Textures/TmxMapLoader on the server:
+//        this.tiledMap = null;
     }
+
 
     private void buildPlayerMaps() {
 
@@ -240,7 +267,7 @@ public class Game {
         playerMaps.add(map3);
         playerMaps.add(map4);
 
-        for(Player player : players) {
+        for (Player player : players) {
             int number = userToMapNumber.get(player.getUsername());
             PlayerMap playerMap = new PlayerMap(playerMaps.get(number - 1));
 
@@ -257,10 +284,10 @@ public class Game {
 
         for (String user : users) {
             players.add(new Player(UUID.randomUUID().toString(),
-                                   user,
-                                   playerNames.get(user),
-                                   playerGenders.get(user),
-                                   mapNumberToPosition.get(userToMapNumber.get(user))));
+                    user,
+                    playerNames.get(user),
+                    playerGenders.get(user),
+                    mapNumberToPosition.get(userToMapNumber.get(user))));
         }
 
         this.players = players;
@@ -463,6 +490,9 @@ public class Game {
         try {
             List<Map<String, Object>> payloads = new ArrayList<>();
             for (NPC npc : npcs) {
+
+                if (npc.isShopNPC()) continue;
+
                 Map<String, Object> payload = new HashMap<>();
                 payload.put("npc_id", npc.getId());
                 payload.put("pos_x", npc.getPosition().x);
@@ -578,9 +608,9 @@ public class Game {
         return vote;
     }
 
-    public TiledMap getTiledMap() {
-        return tiledMap;
-    }
+//    public TiledMap getTiledMap() {
+//        return tiledMap;
+//    }
 
     public NPC getNPC(String id) {
         return npcs.stream().filter(n -> n.getId().equals(id)).toList().getFirst();
@@ -599,7 +629,7 @@ public class Game {
     public PlayerRelation getPlayerRelation(Player p1, Player p2) {
         for (PlayerRelation relation : playerRelations) {
             if ((p1 == relation.getFirst() && p2 == relation.getSecond())
-                || (p1 == relation.getSecond() && p2 == relation.getFirst())) {
+                    || (p1 == relation.getSecond() && p2 == relation.getFirst())) {
                 return relation;
             }
         }

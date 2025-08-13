@@ -60,6 +60,8 @@ public class MessageHandler {
                 return profileController.changeNickname(request);
             case CHANGE_GENDER:
                 return profileController.changeGender(request);
+            case CHANGE_AVATAR:
+                return profileController.changeAvatar(request);
             case JOIN_RADIO:
                 return radioController.joinRadio(request);
             case LEAVE_RADIO:

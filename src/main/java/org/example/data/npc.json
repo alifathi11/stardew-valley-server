@@ -15,6 +15,7 @@
     "gender": "FEMALE",
     "profession": "LAZY_BUM",
     "favorite_items": ["rock", "iron", "coffee"],
+    "days_to_last_quest": 4,
     "initial_x": 34,
     "initial_y": 45
   },
@@ -33,7 +34,7 @@
     "characteristics": "Gentle, introverted, and caring. Enjoys quiet moments, thoughtful conversations, and calm activities. Tends to avoid confrontation and prefers harmony.",
     "gender": "MALE",
     "profession": "LAZY_BUM",
-    "favorite_items": ["coffee", "pickle", "wine"],
+    "favorite_items": ["coffee", "pickles", "wine"],
     "days_to_last_quest": 5,
     "initial_x": 40,
     "initial_y": 55

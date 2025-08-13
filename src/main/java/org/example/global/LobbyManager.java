@@ -167,6 +167,9 @@ public class LobbyManager {
 
         List<Map<String, Object>> NPCPayload = new ArrayList<>();
         for (NPC npc : game.getNPCs()) {
+
+            if (npc.isShopNPC()) continue;
+
             Map<String, Object> payload = new HashMap<>();
             payload.put("id", npc.getId());
             payload.put("name", npc.getName());

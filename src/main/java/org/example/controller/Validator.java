@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Validator {
 
@@ -74,11 +75,12 @@ public class Validator {
     }
 
     public static boolean validateNickname(String nickname) {
-        return true;
+        return nickname.matches("^[a-zA-Z]+$");
     }
 
     public static boolean validateGender(String gender) {
-        return true;
+        return Objects.equals(gender, "MALE") ||
+                Objects.equals(gender, "FEMALE");
     }
 
     public static Message validateSignup(String username,
@@ -130,8 +132,12 @@ public class Validator {
             return Message.error(Type.SIGNUP, "password is not valid.");
         }
 
-        if (!validateGender(name)) {
+        if (!validateNickname(name)) {
             return Message.error(Type.SIGNUP, "nickname is not valid.");
+        }
+
+        if (!validateGender(gender.name())) {
+            return Message.error(Type.SIGNUP, "gender is not valid.");
         }
 
         if (isPasswordWeak(password)) {

@@ -32,13 +32,24 @@ public class ShopItemLoader {
                 if (itemsArray != null && itemsArray.isArray()) {
                     for (JsonNode itemNode : itemsArray) {
                         String itemId = itemNode.get("item_id").asText();
-                        int dailyLimit = itemNode.get("daily_limit").asInt();
-                        itemMap.put(ItemIDs.valueOf(itemId), dailyLimit);
+
+                        JsonNode baseAttributes = itemNode.get("baseAttributes");
+                        if (baseAttributes != null) {
+                            int dailyLimit = baseAttributes.get("daily_limit").asInt();
+                            int price = baseAttributes.get("price").asInt();
+
+                            System.out.println("item id: " + itemId);
+                            System.out.println("daily limit: " + dailyLimit);
+                            System.out.println("price: " + price);
+
+                            itemMap.put(ItemIDs.valueOf(itemId.toLowerCase()), dailyLimit);
+                        }
                     }
                 }
                 break;
             }
         }
         return itemMap;
+
     }
 }

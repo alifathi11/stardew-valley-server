@@ -41,6 +41,8 @@ public class NPCLoader {
                     float initialX = node.get("initial_x").asInt();
                     float initialY = node.get("initial_y").asInt();
 
+                    System.err.println("InitialX: " + initialX + " InitialY: " + initialY);
+
                     npcs.add(new NPC(
                             UUID.randomUUID().toString(),
                             name,

@@ -19,14 +19,7 @@ public class PlayerRelationController {
         String username = (String) message.getFromPayload("username");
         String targetUsername = (String) message.getFromPayload("target_username");
         String itemId = (String) message.getFromPayload("item_id");
-        String amountStr = (String) message.getFromPayload("amount");
-
-        int amount;
-        try {
-            amount = Integer.parseInt(amountStr);
-        } catch (NumberFormatException e) {
-            return Message.error(Type.SEND_GIFT, "amount is not valid.");
-        }
+        int amount = (int) message.getFromPayload("amount");
 
         if (username == null || targetUsername == null || itemId == null) {
             return Message.error(Type.SEND_GIFT, "message format in not valid.");
@@ -169,14 +162,7 @@ public class PlayerRelationController {
     public Message rateGift(Message message) {
         String username = (String) message.getFromPayload("username");
         String giftId = (String) message.getFromPayload("gift_id");
-        String rateStr = (String) message.getFromPayload("rate");
-
-        int rate;
-        try {
-            rate = Integer.parseInt(rateStr);
-        } catch (NumberFormatException e) {
-            return Message.error(Type.RATE_GIFT, "rate is not valid.");
-        }
+        int rate = (int) message.getFromPayload("rate");
 
         if (username == null) {
             return Message.error(Type.RATE_GIFT, "message format in not valid.");

@@ -37,6 +37,8 @@ public class NPC {
 
     private List<ItemIDs> favoriteItems;
 
+    private boolean shopNPC = false;
+
     public NPC(String id,
                String name,
                Profession profession,
@@ -45,6 +47,7 @@ public class NPC {
         this.name = name;
         this.profession = profession;
         this.gender = gender;
+        this.shopNPC = true;
     }
 
     public NPC(String id,
@@ -70,6 +73,8 @@ public class NPC {
         this.controller = new NPCController(this, animationManager);
 
         this.favoriteItems = favoriteItems;
+
+        this.shopNPC = false;
     }
 
     public String getName() {
@@ -164,5 +169,9 @@ public class NPC {
 
     public int getDaysToLastQuest() {
         return daysToLastQuest;
+    }
+
+    public boolean isShopNPC() {
+        return shopNPC;
     }
 }

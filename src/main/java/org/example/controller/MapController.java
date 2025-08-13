@@ -22,6 +22,6 @@ public class MapController {
 
         session.broadcast(message, username);
 
-        return Message.success(Type.VOID, "tiled successfully changed.");
+        return Message.success(Type.VOID, "tile successfully changed.");
     }
 }

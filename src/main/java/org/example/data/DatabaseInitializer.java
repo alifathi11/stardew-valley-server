@@ -30,6 +30,7 @@ public class DatabaseInitializer {
                     security_question TEXT,
                     is_in_any_game BOOL NOT NULL DEFAULT FALSE,
                     score INTEGER DEFAULT 0,
+                    avatar_path TEXT,
                     token TEXT
                 );
             """);
@@ -59,7 +60,7 @@ public class DatabaseInitializer {
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS lobby_invite_tokens (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    token TEXT PRIMARY KEY,
+                    token TEXT NOT NULL,
                     expires_at TEXT NOT NULL,
                     invited_user_id TEXT NOT NULL,
                     lobby_id TEXT NOT NULL

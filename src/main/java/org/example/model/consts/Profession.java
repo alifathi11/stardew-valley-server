@@ -8,6 +8,6 @@ public enum Profession {
     FISHERMAN,
     BARISTA,
     PET_SELLER,
-    WOOD,SELLER,
+    WOOD_SELLER,
     ;
 }
